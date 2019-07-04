@@ -2,8 +2,8 @@
 
 call clean.bat
 
-mkdir temp
-cd temp
+mkdir CMakeFiles
+cd CMakeFiles
 
 cmake .. -G "MinGW Makefiles"
 cmake --build .

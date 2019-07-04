@@ -1,4 +1,4 @@
-set(SITL_SRC test.cpp)
+set(SITL_SRC Connection.cpp)
 
 add_library(sitl SHARED ${SITL_SRC})
 
@@ -8,6 +8,10 @@ target_include_directories(sitl
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+target_link_libraries(sitl Ws2_32 Boost::system)
+
+target_compile_definitions(sitl PRIVATE SITL_EXPORTS)
 
 target_compile_options(sitl PRIVATE
     -O2
