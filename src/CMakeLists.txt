@@ -1,4 +1,4 @@
-set(SITL_SRC Connection.cpp)
+set(SITL_SRC Connection.cpp Command.cpp commands/List.cpp)
 
 add_library(sitl SHARED ${SITL_SRC})
 
@@ -35,7 +35,10 @@ target_compile_options(sitl PRIVATE
     -Wunreachable-code
 )
 
-target_compile_features(sitl PRIVATE cxx_std_17)
+target_compile_features(sitl PUBLIC
+    cxx_std_17
+    cxx_user_literals
+)
 
 set_target_properties(sitl PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${BUILD_OUTPUT_DIR}
