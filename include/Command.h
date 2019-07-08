@@ -3,35 +3,64 @@
 
 #include <string>
 #include <utility>
+#include <functional>
 
 #include "Config.h"
+#include "Stuff.h"
 
 namespace sitl
 {
 
+template <typename T>
+struct Address : stuff::SizedData<T> {};
+
+template <typename T>
+struct DataWord : stuff::SizedData<T> {};
+
 class SITL_API Command
 {
 public:
+    enum Status
+    {
+        IN_PROCESS,
+        FINISHED_DONE,
+        FINISHED_ERDON,
+        FINISHED_ABORT,
+        FINISHED_ERABR,
+        FINISHED_RETRY,
+        FINISHED_ERRET
+    };
+
+    Command();
+
     virtual ~Command() = default;
 
-    virtual void encode(std::string &buffer) const = 0;
+    virtual void encodeCommand(std::string &buffer) const = 0;
 
-    virtual void decodeResult(const std::string &buffer) const;
+    virtual Status handleResult(const std::string& line) = 0;
+
+    bool isCompleted() const;
 
 protected:
-    template <typename T>
-    std::string convert(T number, size_t length = sizeof(T) * 2)
-    {
-        static auto digits = "0123456789ABCDEF";
-        std::string result(length, '0');
+    friend class Connection;
 
-        for (size_t i = 0, n = (length - 1) * 4; i < length; ++i, n -= 4)
-        {
-            result[i] = digits[(number >> n) & 0xfu];
-        }
+    constexpr static size_t KEYWORD_BEGIN = 0;
+    constexpr static size_t KEYWORD_END = 4;
+    constexpr static size_t ADDRESS_BEGIN = 6;
+    constexpr static size_t ADDRESS_END = 21;
+    constexpr static size_t DATA_BEGIN = 23;
+    constexpr static size_t DATA_END = 38;
+    constexpr static size_t ORDER_BEGIN = 40;
+    constexpr static size_t ORDER_END = 43;
+    constexpr static size_t STATUS_BEGIN = 45;
+    constexpr static size_t STATUS_END = 49;
 
-        return result;
-    }
+    void markCompleted();
+
+    static Status parseStatus(const std::string& statusString);
+
+private:
+    bool m_isCompleted;
 };
 
 }

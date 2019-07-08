@@ -1,4 +1,10 @@
-set(SITL_SRC Connection.cpp Command.cpp commands/List.cpp)
+set(SITL_SRC
+    Connection.cpp
+    Command.cpp
+    Stuff.cpp
+    commands/List.cpp
+    commands/Iden.cpp
+    commands/Mwr.cpp)
 
 add_library(sitl SHARED ${SITL_SRC})
 

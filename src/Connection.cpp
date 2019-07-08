@@ -5,70 +5,95 @@
 
 #include "Connection.h"
 
-#include <condition_variable>
+#include <boost/asio/read.hpp>
+#include <boost/asio/write.hpp>
 
 using namespace boost;
 
 namespace sitl
 {
 
-Connection::Connection(const std::string &port) :
+Connection::Connection(const std::string &port, unsigned int baudRate) :
     m_portMutex{},
-    m_context{},
+    m_service{},
     m_serialPort{nullptr},
-    m_buffer{64}
+    m_commandsBuffer{},
+    m_resultsBuffer{}
 {
-    m_serialPort = std::make_unique<asio::serial_port>(m_context);
+    m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
 
-    // TODO: назначить параметры подключения
-    // m_serialPort->set_option(asio::serial_port::baud_rate,       );
-    // m_serialPort->set_option(asio::serial_port::flow_control,    );
-    // m_serialPort->set_option(asio::serial_port::parity,          );
-    // m_serialPort->set_option(asio::serial_port::stop_bits,       );
-    // m_serialPort->set_option(asio::serial_port::character_size,  );
+    m_serialPort->set_option(asio::serial_port::baud_rate(baudRate));
+    m_serialPort->set_option(asio::serial_port::flow_control(asio::serial_port::flow_control::none));
+    m_serialPort->set_option(asio::serial_port::parity(asio::serial_port::parity::none));
+    m_serialPort->set_option(asio::serial_port::stop_bits(asio::serial_port::stop_bits::one));
+    m_serialPort->set_option(asio::serial_port::character_size(8));
 
-    m_serialPort->open(port);
+    m_commandsBuffer.reserve(128);
+    m_resultsBuffer.reserve(128);
 }
 
 
 void Connection::makeTransaction(sitl::Command &command)
 {
     // write command
-    m_buffer.clear();
-    command.encode(m_buffer);
-    serialPortWrite(m_buffer);
+    m_commandsBuffer.clear();
+    command.encodeCommand(m_commandsBuffer);
+    serialPortWrite(m_commandsBuffer);
 
-    // read command
-    serialPortRead(m_buffer);
-    command.decodeResult(m_buffer);
+    // read command results
+    bool isReading = true;
+    while(isReading)
+    {
+        m_resultsBuffer.clear();
+        serialPortRead(m_resultsBuffer);
+
+        const auto status = command.handleResult(m_resultsBuffer);
+        switch (status)
+        {
+            case Command::IN_PROCESS:
+                break;
+
+            case Command::FINISHED_DONE:
+                command.markCompleted();
+                m_resultsBuffer.clear();
+                isReading = false;
+                break;
+
+            //TODO: проверить другие коды
+
+            default:
+                throw std::runtime_error{
+                    "Операция завершена с ошибкой"
+                };
+        }
+    }
 }
 
 
-void Connection::serialPortRead(std::string &data)
+void Connection::serialPortRead(std::string &line)
 {
-    std::condition_variable readSignal;
-
-    bool finished = false;
-
-    struct {
-        system::error_code error{};
-        size_t bytesRead{0};
-    } result;
-
-    m_serialPort->async_read_some(asio::buffer(data), [&](const system::error_code& error, size_t bytesRead) {
-        result = { error, bytesRead };
-        finished = true;
-        readSignal.notify_one();
-    });
-
+    while (true)
     {
-        std::unique_lock lock(m_portMutex);
-        readSignal.wait(lock, [&]{ return finished; });
-    }
+        system::error_code error;
 
-    if (result.error)
-    {
-        throw std::runtime_error(result.error.message());
+        char symbol = 0;
+        asio::read(*m_serialPort, asio::buffer(&symbol, 1), error);
+
+        if (error)
+        {
+            throw std::runtime_error(error.message());
+        }
+
+        switch (symbol)
+        {
+            case '\n':
+                return;
+            case '\r':
+                break;
+            default:
+                line += symbol;
+                break;
+        }
     }
 }
 
@@ -76,7 +101,7 @@ void Connection::serialPortRead(std::string &data)
 void Connection::serialPortWrite(const std::string &data)
 {
     system::error_code error;
-    m_serialPort->write_some(asio::buffer(data), error);
+    asio::write(*m_serialPort, asio::buffer(data.c_str(), data.size()), error);
 
     if (error)
     {
