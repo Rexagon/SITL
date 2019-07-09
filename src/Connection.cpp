@@ -8,6 +8,9 @@
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 
+#include "commands/Mwr.h"
+#include "commands/Mrd.h"
+
 using namespace boost;
 
 namespace sitl
@@ -30,6 +33,18 @@ Connection::Connection(const std::string &port, unsigned int baudRate) :
 
     m_commandsBuffer.reserve(128);
     m_resultsBuffer.reserve(128);
+}
+
+
+void Connection::writeMemory(uint32_t address, uint32_t data)
+{
+    execute<cmds::Mwr<uint32_t, uint32_t>>(address, data);
+}
+
+
+uint32_t Connection::readMemory(uint32_t address)
+{
+    return execute<cmds::Mrd<uint32_t, uint32_t>>(address);
 }
 
 
@@ -74,5 +89,6 @@ void Connection::serialPortWrite(const std::string &data)
         throw std::runtime_error(error.message());
     }
 }
+
 
 }

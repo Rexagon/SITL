@@ -21,7 +21,7 @@ public:
     using ResultType = TD;
 
 
-    explicit Mrd(TA address) : m_address(address) {}
+    explicit Mrd(TA address) : m_address{address}, m_data{} {}
 
 
     void encode(std::string &buffer) const
@@ -43,7 +43,7 @@ public:
             return Status::IN_PROCESS;
         }
 
-        m_data = stuff::convertFromHex(extractDataWord(line));
+        m_data = static_cast<TD>(stuff::convertFromHex(extractDataWord(line)));
 
         const auto status = extractStatus(line);
 

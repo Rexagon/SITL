@@ -30,6 +30,12 @@ public:
     explicit Connection(const std::string &port, unsigned int baudRate);
 
 
+    void writeMemory(uint32_t address, uint32_t data);
+
+
+    uint32_t readMemory(uint32_t address);
+
+
     template <typename T, typename... Ts>
     typename T::ResultType execute(Ts&&... args)
     {
