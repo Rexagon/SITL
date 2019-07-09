@@ -27,8 +27,7 @@ Command::Status List::handleResult(const std::string &line)
         return Status::FINISHED_DONE;
     }
 
-    auto pos = line.find_first_of(' ');
-    const auto keyword = line.substr(0, pos);
+    const auto keyword = extractKeyword(line);
 
     if (keyword == "INTRQ")
     {
@@ -36,7 +35,7 @@ Command::Status List::handleResult(const std::string &line)
     }
     else
     {
-        m_availableCommands.emplace(keyword, CommandInfo{});
+        m_availableCommands.emplace(std::string{keyword}, CommandInfo{});
         //TODO: Обработать возможные параметры команд
     }
 

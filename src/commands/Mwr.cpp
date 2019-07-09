@@ -27,24 +27,19 @@ Command::Status cmds::Mwr::handleResult(const std::string &line)
         return Status::IN_PROCESS;
     }
 
-    if (stuff::convert(m_address, m_addressLength)
-        != std::string_view{&line[ADDRESS_BEGIN], m_addressLength})
+    if (stuff::convert(m_address, m_addressLength) != extractAddress(line))
     {
         throw std::runtime_error{"Неправильный адрес записи"};
     }
 
-    if (stuff::convert(m_dataWord, m_dataWordLength)
-        != std::string_view{&line[DATA_BEGIN], m_dataWordLength})
+    if (stuff::convert(m_dataWord, m_dataWordLength) != extractDataWord(line))
     {
         throw std::runtime_error{"Записаны неправильные данные"};
     }
 
-    const auto status = line.substr(
-        STATUS_BEGIN,
-        line.find_last_not_of(' ', STATUS_BEGIN)
-    );
+    const auto status = extractStatus(line);
 
-    return parseStatus(status);
+    return statusFromString(status);
 }
 
 
