@@ -45,7 +45,13 @@ void Connection::makeTransaction(sitl::Command &command)
     while(isReading)
     {
         m_resultsBuffer.clear();
-        serialPortRead(m_resultsBuffer);
+        const auto symbolCount = serialPortRead(m_resultsBuffer);
+
+        if (symbolCount < Command::RESULT_LINE_LENGTH) {
+            throw std::runtime_error{
+                "Слишком короткая строка результата"
+            };
+        }
 
         const auto status = command.handleResult(m_resultsBuffer);
         switch (status)
@@ -59,7 +65,7 @@ void Connection::makeTransaction(sitl::Command &command)
                 isReading = false;
                 break;
 
-            //TODO: проверить другие коды
+            // TODO: проверить другие коды
 
             default:
                 throw std::runtime_error{
@@ -70,8 +76,10 @@ void Connection::makeTransaction(sitl::Command &command)
 }
 
 
-void Connection::serialPortRead(std::string &line)
+size_t Connection::serialPortRead(std::string &line)
 {
+    size_t symbolCount = 0;
+
     while (true)
     {
         system::error_code error;
@@ -87,10 +95,11 @@ void Connection::serialPortRead(std::string &line)
         switch (symbol)
         {
             case '\n':
-                return;
+                return symbolCount;
             case '\r':
                 break;
             default:
+                ++symbolCount;
                 line += symbol;
                 break;
         }

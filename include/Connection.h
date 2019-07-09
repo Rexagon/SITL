@@ -16,17 +16,33 @@
 namespace sitl
 {
 
+/**
+ * @brief   Соединение с устройством по протоколу SITL через serial port.
+ */
 class SITL_API Connection final
 {
 public:
+    /**
+     * @brief           Открывает соединение на указанном порту.
+     * @param port      Название порта для установки соединения
+     * @param baudRate  Скорость передачи
+     */
     explicit Connection(const std::string &port, unsigned int baudRate);
-    virtual ~Connection() = default;
 
+
+    /**
+     * @brief           Выполняет команду.
+     *
+     * При успешном выполнении команда будет помечена как completed и
+     * все данные в ней должны быть установлены из результата.
+     *
+     * @param command   Комманда для выполнения
+     */
     void makeTransaction(Command& command);
 
 private:
     void serialPortWrite(const std::string &data);
-    void serialPortRead(std::string &line);
+    size_t serialPortRead(std::string &line);
 
     std::mutex m_portMutex;
 

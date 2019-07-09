@@ -10,24 +10,59 @@
 namespace sitl::cmds
 {
 
+/**
+ * @brief   Команда для полечения списка команд, поддерживаемых текущей
+ *          конфигурацией оборудования.
+ */
 class SITL_API List : public Command
 {
 public:
+    /**
+     * @brief Режим исполения команды.
+     */
+    enum Type
+    {
+        FULL_INFO,  ///< Команда выполняется 2 раза, получая всю необходимую информацию.
+        SINGLE_PING ///< Команда выполняется 1 раз, не обрабатывая полученный результат.
+                    ///< В таком режиме можно с некоторой периодичностью проверять
+                    ///< работоспособность устройства.
+    };
+
+
+    /**
+     * @brief Информация о команде
+     */
     struct CommandInfo
     {
         //TODO: указать здесь возможные разрядности и т.д.
     };
 
-    void encodeCommand(std::string &buffer) const override;
 
-    Status handleResult(const std::string &line) override;
+    /**
+     * @brief   Команда LIST в одном из 2х режимов.
+     * @param type  Режим исполнения команды.
+     */
+    List(Type type = Type::FULL_INFO);
 
+
+    /**
+     * @brief   Возвращает таблицу с возможными конфигурациями команд.
+     *          Ключом является название команды.
+     *
+     * Если команда была создана в режиме SINGLE_PING, то таблица всё время
+     * будет пустой.
+     *
+     * @return  Таблица с возможными конфигурациями команд.
+     */
     const std::unordered_map<std::string, CommandInfo>& getAvailableCommands() const;
 
-private:
-    constexpr static auto KEYWORD = "LIST";
 
-    std::unordered_map<std::string, CommandInfo> m_availableCommands;
+    void encodeCommand(std::string &buffer) const override;
+    Status handleResult(const std::string &line) override;
+
+private:
+    Type m_type;
+    std::unordered_map<std::string, CommandInfo> m_availableCommands{};
 };
 
 }

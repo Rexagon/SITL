@@ -5,22 +5,27 @@
 
 #include "commands/Mwr.h"
 
-namespace sitl
+namespace sitl::cmds
 {
 
-
-void cmds::Mwr::encodeCommand(std::string &buffer) const
+namespace
 {
-    buffer += KEYWORD;
-    buffer += " ";
-    buffer += stuff::convertToHex(m_address, m_addressLength);
-    buffer += " ";
-    buffer += stuff::convertToHex(m_dataWord, m_dataWordLength);
-    buffer += "\n";
+constexpr auto KEYWORD = "MWR";
+}
+
+void Mwr::encodeCommand(std::string &buffer) const
+{
+    stuff::appendLine(buffer,
+        KEYWORD,
+        " ",
+        stuff::convertToHex(m_address, m_addressLength),
+        " ",
+        stuff::convertToHex(m_dataWord, m_dataWordLength)
+    );
 }
 
 
-Command::Status cmds::Mwr::handleResult(const std::string &line)
+Command::Status Mwr::handleResult(const std::string &line)
 {
     if (line.find(KEYWORD) != 0 || line.size() != 50 ||
         stuff::convertToHex(m_address, m_addressLength) != extractAddress(line) ||

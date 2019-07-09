@@ -10,12 +10,6 @@
 namespace sitl
 {
 
-Command::Command() :
-    m_isCompleted{false}
-{
-}
-
-
 bool Command::isCompleted() const
 {
     return m_isCompleted;

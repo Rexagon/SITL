@@ -10,21 +10,16 @@
 namespace sitl::cmds
 {
 
-Iden::Iden() :
-    m_info{}
+namespace
 {
+constexpr auto KEYWORD = "IDEN";
 }
-
 
 void Iden::encodeCommand(std::string &buffer) const
 {
-    buffer.append(KEYWORD);
-    buffer.append("\n");
-
     // У результатов этой команды нет точного конца, но есть точное начало.
     // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
-    buffer.append(KEYWORD);
-    buffer.append("\n");
+    stuff::appendLine(buffer, KEYWORD, "\n", KEYWORD);
 }
 
 

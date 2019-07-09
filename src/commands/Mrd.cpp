@@ -3,21 +3,25 @@
 * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 */
 
-#include <commands/Mrd.h>
-
-#include "commands/Mwr.h"
+#include "commands/Mrd.h"
 
 namespace sitl::cmds
 {
 
+namespace
+{
+constexpr auto KEYWORD = "MRD";
+}
+
 void Mrd::encodeCommand(std::string &buffer) const
 {
-    buffer += KEYWORD;
-    buffer += " ";
-    buffer += stuff::convertToHex(m_address, m_addressLength);
-    buffer += " -D";
-    buffer += std::to_string(m_dataWordSize * 8);
-    buffer += '\n';
+    stuff::appendLine(buffer,
+        KEYWORD,
+        " ",
+        stuff::convertToHex(m_address, m_addressLength),
+        " -D",
+        std::to_string(m_dataWordSize * 8)
+    );
 }
 
 Command::Status Mrd::handleResult(const std::string &line)

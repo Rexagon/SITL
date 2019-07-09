@@ -10,20 +10,35 @@
 namespace sitl::cmds
 {
 
+namespace
+{
+constexpr auto KEYWORD = "LIST";
+}
+
+List::List(List::Type type) :
+    m_type(type)
+{
+}
+
 void List::encodeCommand(std::string &buffer) const
 {
-    buffer.append(KEYWORD);
-    buffer.append("\n");
-
-    // У результатов этой команды нет точного конца, но есть точное начало.
-    // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
-    buffer.append(KEYWORD);
-    buffer.append("\n");
+    if (m_type == Type::FULL_INFO)
+    {
+        // У результатов этой команды нет точного конца, но есть точное начало.
+        // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
+        stuff::appendLine(buffer, KEYWORD, "\n", KEYWORD);
+    }
+    else
+    {
+        stuff::appendLine(buffer, KEYWORD);
+    }
 }
 
 Command::Status List::handleResult(const std::string &line)
 {
-    if (!m_availableCommands.empty() && line.find("LIST:") == 0) {
+    if (line.find("LIST:") == 0 &&
+        (m_type == SINGLE_PING || !m_availableCommands.empty()))
+    {
         return Status::FINISHED_DONE;
     }
 

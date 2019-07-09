@@ -8,9 +8,21 @@
 namespace sitl::cmds
 {
 
+/**
+ * @brief   Команда, выполняющая запись одиночного слова данных в адресном
+ *          пространстве памяти.
+ */
 class SITL_API Mwr : public Command
 {
 public:
+    /**
+     * @brief           Создаёт команду с определённым адресом и данными для
+     *                  записи.
+     * @tparam TA       Тип данных адреса
+     * @tparam TD       Типа данных слова данных
+     * @param address   Адрес
+     * @param dataWord  Слово данных
+     */
     template <typename TA, typename TD>
     Mwr(const Address<TA> &address, const DataWord<TD> &dataWord) :
         m_address{address.data},
@@ -20,13 +32,11 @@ public:
     {
     }
 
-    void encodeCommand(std::string &buffer) const override;
 
+    void encodeCommand(std::string &buffer) const override;
     Status handleResult(const std::string &line) override;
 
 private:
-    constexpr static auto KEYWORD = "MWR";
-
     uint64_t m_address;
     size_t m_addressLength;
 

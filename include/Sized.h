@@ -8,7 +8,7 @@ namespace sitl
 {
 
 /**
- * @brief Обёртка для аргументов template конструктора
+ * @brief Обёртка для аргументов template конструктора.
  */
 template <typename T>
 struct SITL_API Sized
@@ -21,7 +21,7 @@ struct SITL_API Sized
 
 
 /**
- * @brief Обёртка для аргументов template конструктора
+ * @brief Обёртка для аргументов template конструктора.
  */
 template <typename T>
 struct SITL_API SizedData : Sized<T>
@@ -31,7 +31,7 @@ struct SITL_API SizedData : Sized<T>
 
 
 /**
- * @brief Обёртка для адреса
+ * @brief Обёртка для адреса.
  */
 template <typename T>
 struct SITL_API Address : SizedData<T> {
@@ -40,7 +40,7 @@ struct SITL_API Address : SizedData<T> {
 
 
 /**
- * @brief Обёртка для слова данных
+ * @brief Обёртка для слова данных.
  */
 template <typename T>
 struct SITL_API DataWord : SizedData<T> {

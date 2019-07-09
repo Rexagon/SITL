@@ -52,6 +52,7 @@ std::string convertToHex(T number, size_t length = sizeof(T) * 2)
     return result;
 }
 
+
 /***
  * @brief Конвертирует строку в шестнадцатиричном коде в число
  * @param hex       Строка в шестнадцатиричном коде
@@ -70,7 +71,50 @@ SITL_API uint64_t convertFromHex(std::string_view hex);
  * @return          Массив из элементов исходной строки. Ни один элемент не
  *                  содержит делитель
  */
-SITL_API std::vector<std::string> split(const std::string& string, char delimiter);
+SITL_API std::vector<std::string> split(const std::string &string, char delimiter);
+
+
+/**
+ * @brief Добавление к строке нескольких кусков строк
+ *
+ * Это работает без создания временных объектов, как например здесь:
+ * @code buffer += "temp" + std::string{"asd"} + "anther";
+ *
+ * @tparam T        Тип первого аргемента
+ * @tparam Ts       Типы остальных аргументов
+ * @param buffer    Буффер, в который будут добавлятся куски строк
+ * @param arg       Первый аргумент. Всегда должен быть
+ * @param args      Остальные аргументы. Их может и не быть
+ */
+template <typename T, typename... Ts>
+void append(std::string &buffer, T&& arg, Ts&&... args)
+{
+    using dummy = int[];
+    static_cast<void>(dummy {
+        (static_cast<void>(buffer.append(std::forward<T>(arg))), 0),
+        (static_cast<void>(buffer.append(std::forward<Ts>(args))), 0)...
+    });
+}
+
+
+/**
+ * @brief Добавление к строке нескольких кусков строк и одного символа переноса
+ *
+ * Это работает без создания временных объектов, как например здесь:
+ * @code buffer += "temp" + std::string{"asd"} + "anther\n";
+ *
+ * @tparam T        Тип первого аргемента
+ * @tparam Ts       Типы остальных аргументов
+ * @param buffer    Буффер, в который будут добавлятся куски строк
+ * @param arg       Первый аргумент. Всегда должен быть
+ * @param args      Остальные аргументы. Их может и не быть
+ */
+template <typename T, typename... Ts>
+void appendLine(std::string &buffer, T&& arg, Ts&&... args)
+{
+    append(buffer, std::forward<T>(arg), std::forward<Ts>(args)...);
+    buffer.append(1, '\n');
+}
 
 }
 
