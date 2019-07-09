@@ -51,5 +51,14 @@ TEST_CASE("Transaction test")
             sitl::DataWord<uint8_t>{0xFF}
         };
         connection.makeTransaction(mwrCmd);
+
+        sitl::cmds::Mrd mrdCmd{
+            sitl::Address<uint16_t>{0xF74A},
+            sitl::Sized<uint8_t>{}
+        };
+
+        connection.makeTransaction(mrdCmd);
+
+        // mrdCmd.getDataWord();
     }());
 }
