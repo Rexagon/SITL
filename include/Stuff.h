@@ -30,21 +30,6 @@ inline constexpr bool is_any_of_v = is_any_of<T, T1, Ts...>::value;
 
 
 /**
- * @brief Обёртка для аргументов template конструктора
- */
-template <typename T>
-struct SITL_API SizedData
-{
-    static_assert(is_any_of_v<T, uint8_t, uint16_t, uint32_t, uint64_t>);
-
-    constexpr static size_t size = sizeof(T);
-    constexpr static size_t hexLength = sizeof(T) * 2;
-
-    T data;
-};
-
-
-/**
  * @brief Конвертирует число в строку в шестнадцатиричном коде с ведущими нулями
  * @tparam T        Тип числа
  * @param number    Число
@@ -54,7 +39,7 @@ struct SITL_API SizedData
  *                  представляющая переданное число
  */
 template <typename T>
-std::string convert(T number, size_t length = sizeof(T) * 2)
+std::string convertToHex(T number, size_t length = sizeof(T) * 2)
 {
     static auto digits = "0123456789ABCDEF";
     std::string result(length, '0');
@@ -66,6 +51,15 @@ std::string convert(T number, size_t length = sizeof(T) * 2)
 
     return result;
 }
+
+/***
+ * @brief Конвертирует строку в шестнадцатиричном коде в число
+ * @param hex       Строка в шестнадцатиричном коде
+ * @return          Число из строки
+ * @throws          std::runtime_error если в строке были символы не
+ *                  шестнадцатиричные символы
+ */
+SITL_API uint64_t convertFromHex(std::string_view hex);
 
 
 /**

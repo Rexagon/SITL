@@ -145,3 +145,29 @@ TEST_CASE("MWR command")
         REQUIRE(status == sitl::Command::FINISHED_DONE);
     }
 }
+
+TEST_CASE("MRD command")
+{
+    sitl::cmds::Mrd mrdCmd{
+        sitl::Address<uint16_t>{0xDEAD},
+        sitl::Sized<uint16_t>{}
+    };
+
+    SECTION("Encoding")
+    {
+        std::string buffer;
+        mrdCmd.encodeCommand(buffer);
+
+        REQUIRE(buffer == "MRD DEAD -D16\n");
+    }
+
+    SECTION("Decoding")
+    {
+        const char* reply =
+            "MRD   DEAD             0000BEAF         LAST DONE ";
+
+        const auto status = mrdCmd.handleResult(reply);
+
+        REQUIRE(status == sitl::Command::FINISHED_DONE);
+    }
+}

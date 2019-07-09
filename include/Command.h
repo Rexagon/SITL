@@ -11,12 +11,6 @@
 namespace sitl
 {
 
-template <typename T>
-struct Address : stuff::SizedData<T> {};
-
-template <typename T>
-struct DataWord : stuff::SizedData<T> {};
-
 class SITL_API Command
 {
 public:

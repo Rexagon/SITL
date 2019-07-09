@@ -1,6 +1,7 @@
-#ifndef LIBSITL_MWR_H
-#define LIBSITL_MWR_H
+#ifndef LIBSITL_MRD_H
+#define LIBSITL_MRD_H
 
+#include <Sized.h>
 #include "Config.h"
 #include "Command.h"
 #include "Sized.h"
@@ -8,15 +9,15 @@
 namespace sitl::cmds
 {
 
-class SITL_API Mwr : public Command
+class SITL_API Mrd : public Command
 {
 public:
     template <typename TA, typename TD>
-    Mwr(const Address<TA> &address, const DataWord<TD> &dataWord) :
+    Mrd(const Address<TA> &address, const Sized<TD> &dataWord) :
         m_address{address.data},
         m_addressLength{address.hexLength},
-        m_dataWord{dataWord.data},
-        m_dataWordLength{dataWord.hexLength}
+        m_dataWord{0},
+        m_dataWordSize{dataWord.size}
     {
     }
 
@@ -24,16 +25,18 @@ public:
 
     Status handleResult(const std::string &line) override;
 
+    uint64_t getDataWord() const;
+
 private:
-    constexpr static auto KEYWORD = "MWR";
+    constexpr static auto KEYWORD = "MRD";
 
     uint64_t m_address;
     size_t m_addressLength;
 
     uint64_t m_dataWord;
-    size_t m_dataWordLength;
+    size_t m_dataWordSize;
 };
 
 }
 
-#endif //LIBSITL_MWR_H
+#endif //LIBSITL_MRD_H
