@@ -10,16 +10,6 @@
 constexpr static auto DEFAULT_COM = "COM3";
 constexpr static auto DEFAULT_BAUD_RATE = 9600;
 
-namespace
-{
-void testManualEncoding(sitl::Command &command, const std::string &target)
-{
-    std::string buffer;
-    command.encodeCommand(buffer);
-
-    REQUIRE(buffer == target);
-}
-}
 
 TEST_CASE("Successful construction")
 {
@@ -38,27 +28,16 @@ TEST_CASE("Failed construction")
 TEST_CASE("Transaction test")
 {
     REQUIRE_NOTHROW([]() {
-        sitl::Connection connection{DEFAULT_COM, DEFAULT_BAUD_RATE};
+        using namespace sitl;
 
-        sitl::cmds::List listCmd;
-        connection.makeTransaction(listCmd);
+        Connection connection{DEFAULT_COM, DEFAULT_BAUD_RATE};
 
-        sitl::cmds::Iden idenCmd;
-        connection.makeTransaction(idenCmd);
+        const auto listResult = connection.execute<cmds::List>();
 
-        sitl::cmds::Mwr mwrCmd{
-            sitl::Address<uint16_t>{0xF74A},
-            sitl::DataWord<uint8_t>{0xFF}
-        };
-        connection.makeTransaction(mwrCmd);
+        const auto info = connection.execute<cmds::Iden>();
 
-        sitl::cmds::Mrd mrdCmd{
-            sitl::Address<uint16_t>{0xF74A},
-            sitl::Sized<uint8_t>{}
-        };
+        connection.execute<cmds::Mwr<uint16_t, uint8_t>>(0xF74A, 0xFF);
 
-        connection.makeTransaction(mrdCmd);
-
-        // mrdCmd.getDataWord();
+        const auto data = connection.execute<cmds::Mrd<uint16_t, uint8_t>>(0xF74A);
     }());
 }

@@ -20,7 +20,8 @@ List::List(List::Type type) :
 {
 }
 
-void List::encodeCommand(std::string &buffer) const
+
+void List::encode(std::string &buffer) const
 {
     if (m_type == Type::FULL_INFO)
     {
@@ -34,7 +35,8 @@ void List::encodeCommand(std::string &buffer) const
     }
 }
 
-Command::Status List::handleResult(const std::string &line)
+
+Status List::decodeLine(const std::string &line)
 {
     if (line.find("LIST:") == 0 &&
         (m_type == SINGLE_PING || !m_availableCommands.empty()))
@@ -57,7 +59,8 @@ Command::Status List::handleResult(const std::string &line)
     return Status::IN_PROCESS;
 }
 
-const std::unordered_map<std::string, List::CommandInfo> & List::getAvailableCommands() const
+
+List::ResultType List::getResult() const
 {
     return m_availableCommands;
 }

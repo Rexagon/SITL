@@ -33,49 +33,6 @@ Connection::Connection(const std::string &port, unsigned int baudRate) :
 }
 
 
-void Connection::makeTransaction(sitl::Command &command)
-{
-    // write command
-    m_commandsBuffer.clear();
-    command.encodeCommand(m_commandsBuffer);
-    serialPortWrite(m_commandsBuffer);
-
-    // read command results
-    bool isReading = true;
-    while(isReading)
-    {
-        m_resultsBuffer.clear();
-        const auto symbolCount = serialPortRead(m_resultsBuffer);
-
-        if (symbolCount < Command::RESULT_LINE_LENGTH) {
-            throw std::runtime_error{
-                "Слишком короткая строка результата"
-            };
-        }
-
-        const auto status = command.handleResult(m_resultsBuffer);
-        switch (status)
-        {
-            case Command::IN_PROCESS:
-                break;
-
-            case Command::FINISHED_DONE:
-                command.markCompleted();
-                m_resultsBuffer.clear();
-                isReading = false;
-                break;
-
-            // TODO: проверить другие коды
-
-            default:
-                throw std::runtime_error{
-                    "Операция завершена с ошибкой"
-                };
-        }
-    }
-}
-
-
 size_t Connection::serialPortRead(std::string &line)
 {
     size_t symbolCount = 0;

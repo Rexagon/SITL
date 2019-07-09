@@ -15,7 +15,7 @@ namespace
 constexpr auto KEYWORD = "IDEN";
 }
 
-void Iden::encodeCommand(std::string &buffer) const
+void Iden::encode(std::string &buffer) const
 {
     // У результатов этой команды нет точного конца, но есть точное начало.
     // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
@@ -23,7 +23,7 @@ void Iden::encodeCommand(std::string &buffer) const
 }
 
 
-Command::Status Iden::handleResult(const std::string &line)
+Status Iden::decodeLine(const std::string &line)
 {
     if (!m_info.empty() && line.find("IDEN:") == 0) {
         return Status::FINISHED_DONE;
@@ -43,7 +43,7 @@ Command::Status Iden::handleResult(const std::string &line)
 }
 
 
-const std::string &Iden::getInfo() const
+Iden::ResultType Iden::getResult() const
 {
     return m_info;
 }

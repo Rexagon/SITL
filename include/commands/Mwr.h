@@ -3,7 +3,6 @@
 
 #include "Config.h"
 #include "Command.h"
-#include "Sized.h"
 
 namespace sitl::cmds
 {
@@ -12,36 +11,49 @@ namespace sitl::cmds
  * @brief   Команда, выполняющая запись одиночного слова данных в адресном
  *          пространстве памяти.
  */
-class SITL_API Mwr : public Command
+template <typename TA, typename TD>
+class SITL_API Mwr
 {
 public:
-    /**
-     * @brief           Создаёт команду с определённым адресом и данными для
-     *                  записи.
-     * @tparam TA       Тип данных адреса
-     * @tparam TD       Типа данных слова данных
-     * @param address   Адрес
-     * @param dataWord  Слово данных
-     */
-    template <typename TA, typename TD>
-    Mwr(const Address<TA> &address, const DataWord<TD> &dataWord) :
-        m_address{address.data},
-        m_addressLength{address.hexLength},
-        m_dataWord{dataWord.data},
-        m_dataWordLength{dataWord.hexLength}
+    using ResultType = void;
+
+    explicit Mwr(TA address, TD data) :
+        m_address{address},
+        m_dataWord{data}
     {
     }
 
+    void encode(std::string &buffer) const
+    {
+        stuff::appendLine(buffer,
+            "MWR ",
+            stuff::convertToHex(m_address),
+            " ",
+            stuff::convertToHex(m_dataWord)
+        );
+    }
 
-    void encodeCommand(std::string &buffer) const override;
-    Status handleResult(const std::string &line) override;
+
+    Status decodeLine(const std::string &line)
+    {
+        if (line.find("MWR") != 0 ||
+            stuff::convertToHex(m_address) != extractAddress(line) ||
+            stuff::convertToHex(m_dataWord) != extractDataWord(line))
+        {
+            return Status::IN_PROCESS;
+        }
+
+        const auto status = extractStatus(line);
+
+        return statusFromString(status);
+    }
+
+
+    void getResult() {}
 
 private:
-    uint64_t m_address;
-    size_t m_addressLength;
-
-    uint64_t m_dataWord;
-    size_t m_dataWordLength;
+    TA m_address;
+    TD m_dataWord;
 };
 
 }

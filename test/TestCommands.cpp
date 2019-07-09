@@ -7,10 +7,11 @@
 
 #include "sitl.h"
 
-void testManualEncoding(sitl::Command& command, const std::string& target)
+template <typename T>
+void testManualEncoding(const T& command, const std::string& target)
 {
     std::string buffer;
-    command.encodeCommand(buffer);
+    command.encode(buffer);
 
     REQUIRE(buffer == target);
 }
@@ -42,15 +43,15 @@ TEST_CASE("LIST command")
             "IDEN                                              \n";
         //  ...
 
-        sitl::Command::Status status{};
+        sitl::cmds::Status status{};
 
         const auto lines = sitl::stuff::split(reply, '\n');
 
         size_t currentLine = 0;
         for (const auto& line : lines)
         {
-            status = listCmd.handleResult(line);
-            if (status == sitl::Command::FINISHED_DONE)
+            status = listCmd.decodeLine(line);
+            if (status == sitl::cmds::FINISHED_DONE)
             {
                 break;
             }
@@ -58,7 +59,7 @@ TEST_CASE("LIST command")
             ++currentLine;
         }
 
-        REQUIRE(status == sitl::Command::FINISHED_DONE);
+        REQUIRE(status == sitl::cmds::FINISHED_DONE);
         REQUIRE(currentLine == 9);
     }
 }
@@ -70,7 +71,7 @@ TEST_CASE("IDEN command")
     SECTION("Encoding")
     {
         std::string buffer;
-        idenCmd.encodeCommand(buffer);
+        idenCmd.encode(buffer);
 
         // Дважды, т.к. это единственный способ найти конец результата
         REQUIRE(buffer == "IDEN\nIDEN\n");
@@ -99,15 +100,15 @@ TEST_CASE("IDEN command")
             "SITL-assembler:                                   \n";
         //  ...
 
-        sitl::Command::Status status{};
+        sitl::cmds::Status status{};
 
         const auto lines = sitl::stuff::split(reply, '\n');
 
         size_t currentLine = 0;
         for (const auto& line : lines)
         {
-            status = idenCmd.handleResult(line);
-            if (status == sitl::Command::FINISHED_DONE)
+            status = idenCmd.decodeLine(line);
+            if (status == sitl::cmds::FINISHED_DONE)
             {
                 break;
             }
@@ -115,22 +116,22 @@ TEST_CASE("IDEN command")
             ++currentLine;
         }
 
-        REQUIRE(status == sitl::Command::FINISHED_DONE);
+        REQUIRE(status == sitl::cmds::FINISHED_DONE);
         REQUIRE(currentLine == 16);
     }
 }
 
 TEST_CASE("MWR command")
 {
-    sitl::cmds::Mwr mwrCmd{
-        sitl::Address<uint16_t>{0xDEAD},
-        sitl::DataWord<uint32_t>{0x0000BEAF}
+    sitl::cmds::Mwr<uint16_t, uint32_t> mwrCmd{
+        0xDEAD,
+        0x0000BEAF
     };
 
     SECTION("Encoding")
     {
         std::string buffer;
-        mwrCmd.encodeCommand(buffer);
+        mwrCmd.encode(buffer);
 
         REQUIRE(buffer == "MWR DEAD 0000BEAF\n");
     }
@@ -140,23 +141,20 @@ TEST_CASE("MWR command")
         const char* reply =
             "MWR   DEAD             0000BEAF         LAST DONE ";
 
-        const auto status = mwrCmd.handleResult(reply);
+        const auto status = mwrCmd.decodeLine(reply);
 
-        REQUIRE(status == sitl::Command::FINISHED_DONE);
+        REQUIRE(status == sitl::cmds::FINISHED_DONE);
     }
 }
 
 TEST_CASE("MRD command")
 {
-    sitl::cmds::Mrd mrdCmd{
-        sitl::Address<uint16_t>{0xDEAD},
-        sitl::Sized<uint16_t>{}
-    };
+    sitl::cmds::Mrd<uint16_t, uint16_t> mrdCmd{0xDEAD};
 
     SECTION("Encoding")
     {
         std::string buffer;
-        mrdCmd.encodeCommand(buffer);
+        mrdCmd.encode(buffer);
 
         REQUIRE(buffer == "MRD DEAD -D16\n");
     }
@@ -166,8 +164,8 @@ TEST_CASE("MRD command")
         const char* reply =
             "MRD   DEAD             0000BEAF         LAST DONE ";
 
-        const auto status = mrdCmd.handleResult(reply);
+        const auto status = mrdCmd.decodeLine(reply);
 
-        REQUIRE(status == sitl::Command::FINISHED_DONE);
+        REQUIRE(status == sitl::cmds::FINISHED_DONE);
     }
 }

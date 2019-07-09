@@ -30,15 +30,44 @@ public:
     explicit Connection(const std::string &port, unsigned int baudRate);
 
 
-    /**
-     * @brief           Выполняет команду.
-     *
-     * При успешном выполнении команда будет помечена как completed и
-     * все данные в ней должны быть установлены из результата.
-     *
-     * @param command   Комманда для выполнения
-     */
-    void makeTransaction(Command& command);
+    template <typename T, typename... Ts>
+    typename T::ResultType execute(Ts&&... args)
+    {
+        T command(std::forward<Ts>(args)...);
+
+        // Конвертируем и отправляем всю команду
+        m_commandsBuffer.clear();
+        command.encode(m_commandsBuffer);
+        serialPortWrite(m_commandsBuffer);
+
+        // Начинаем считывание
+        bool isReading = true;
+        while (isReading)
+        {
+            // Считываем одну строку результата
+            m_resultsBuffer.clear();
+            serialPortRead(m_resultsBuffer);
+
+            // Обрабатываем строку
+            const auto status = command.decodeLine(m_resultsBuffer);
+            switch (status)
+            {
+                case cmds::Status::IN_PROCESS:
+                    break;
+
+                case cmds::Status::FINISHED_DONE:
+                    isReading = false;
+                    break;
+
+                // TODO: проверить другие коды
+
+                default:
+                    throw std::runtime_error{"Операция завершена с ошибкой"};
+            }
+        }
+
+        return command.getResult();
+    }
 
 private:
     void serialPortWrite(const std::string &data);

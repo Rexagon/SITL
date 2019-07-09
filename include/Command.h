@@ -8,15 +8,9 @@
 #include "Config.h"
 #include "Stuff.h"
 
-namespace sitl
+namespace sitl::cmds
 {
 
-/**
- * @brief   Базовый класс для всех команд языка SITL.
- */
-class SITL_API Command
-{
-public:
     /**
      * @brief Статус обработки команды.
      */
@@ -30,37 +24,6 @@ public:
         FINISHED_RETRY, ///< Запрос повтора транзакции
         FINISHED_ERRET  ///< Запрос повтора с ошибкой чётнсти
     };
-
-
-    /**
-     * @brief   Деструктор по умолчанию.
-     */
-    virtual ~Command() = default;
-
-
-    /**
-     * @brief           Записывает в буффер сообщений закодированную команду.
-     * @param buffer    Буффер сообщений
-     */
-    virtual void encodeCommand(std::string &buffer) const = 0;
-
-
-    /**
-     * @brief           Обрабатывает одну строку результата.
-     * @param line      Строка результата. Должна быть не короче 50 символов.
-     * @return          Статус обраотки команды
-     */
-    virtual Status handleResult(const std::string& line) = 0;
-
-
-    /**
-     * @brief           Готовность данных команды.
-     * @return          true, если команда обработана
-     */
-    bool isCompleted() const;
-
-protected:
-    friend class Connection;
 
     constexpr static size_t RESULT_LINE_LENGTH = 50;
 
@@ -79,19 +42,13 @@ protected:
     constexpr static size_t STATUS_BEGIN = 45;
     constexpr static size_t STATUS_LENGTH_MAX = 5;
 
-    void markCompleted();
+    SITL_API std::string_view extractKeyword(const std::string &line);
+    SITL_API std::string_view extractAddress(const std::string &line);
+    SITL_API std::string_view extractDataWord(const std::string &line);
+    SITL_API std::string_view extractOrder(const std::string &line);
+    SITL_API std::string_view extractStatus(const std::string &line);
 
-    static std::string_view extractKeyword(const std::string &line);
-    static std::string_view extractAddress(const std::string &line);
-    static std::string_view extractDataWord(const std::string &line);
-    static std::string_view extractOrder(const std::string &line);
-    static std::string_view extractStatus(const std::string &line);
-
-    static Status statusFromString(std::string_view statusString);
-
-private:
-    bool m_isCompleted = false;
-};
+    SITL_API Status statusFromString(std::string_view statusString);
 
 }
 

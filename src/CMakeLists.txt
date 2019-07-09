@@ -3,8 +3,7 @@ set(SITL_SRC
     Command.cpp
     Stuff.cpp
     commands/List.cpp
-    commands/Iden.cpp
-    commands/Mwr.cpp commands/Mrd.cpp)
+    commands/Iden.cpp)
 
 add_library(sitl SHARED ${SITL_SRC})
 
