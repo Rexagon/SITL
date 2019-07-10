@@ -14,7 +14,10 @@ target_include_directories(sitl
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(sitl Ws2_32 Boost::system)
+target_link_libraries(sitl
+    Ws2_32
+    Boost::system
+)
 
 target_compile_definitions(sitl PRIVATE SITL_EXPORTS)
 
@@ -50,6 +53,23 @@ set_target_properties(sitl PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${BUILD_OUTPUT_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${BUILD_OUTPUT_DIR}
 )
+
+add_library(pysitl MODULE sitl_wrap.cpp)
+
+target_link_libraries(pysitl
+    sitl
+    Python2::Python
+    Boost::python27
+)
+
+set_target_properties(pysitl
+    PROPERTIES
+    PREFIX ""
+    SUFFIX ".pyd"
+    LIBRARY_OUTPUT_DIRECTORY ${BUILD_OUTPUT_DIR}
+)
+
+target_compile_definitions(pysitl PRIVATE BOOST_PYTHON_STATIC_LIB)
 
 add_custom_command(TARGET sitl POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libgcc_s_dw2-1.dll ${BUILD_OUTPUT_DIR}/

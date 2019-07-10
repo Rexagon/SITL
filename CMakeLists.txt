@@ -17,6 +17,8 @@ set(Boost_ARCHITECTURE      "-x32")
 
 find_package(Boost REQUIRED COMPONENTS python27 system)
 
+find_package(Python2 COMPONENTS Development)
+
 # sitl library
 add_subdirectory(src)
 

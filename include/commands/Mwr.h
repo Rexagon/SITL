@@ -47,9 +47,9 @@ public:
      */
     Status decodeLine(const std::string &line)
     {
-        if (line.find("MWR") != 0 ||
-            stuff::convertToHex(m_address) != extractAddress(line) ||
-            stuff::convertToHex(m_dataWord) != extractDataWord(line))
+        if (line.find("MWR") != 0
+            || stuff::convertToHex(m_address) != extractAddress(line)
+            || stuff::convertToHex(m_dataWord) != extractDataWord(line))
         {
             return Status::IN_PROCESS;
         }

@@ -45,8 +45,9 @@ public:
      */
     Status decodeLine(const std::string &line)
     {
-        if (line.find("MRD") != 0 || line.size() != 50 ||
-            stuff::convertToHex(m_address) != extractAddress(line))
+        if (line.find("MRD") != 0
+            || line.size() != 50
+            || stuff::convertToHex(m_address) != extractAddress(line))
         {
             return Status::IN_PROCESS;
         }
