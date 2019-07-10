@@ -12,6 +12,9 @@ namespace sitl::stuff
 /**
  * @brief Вспомогательная метафункция для проверки вхождения типа в множество
  *
+ * Можно использовать вместе со static_assert для ограничения передаваемых
+ * типов
+ *
  * @param T     Проверяемый тип
  * @param Ts    Множество типов
  */
@@ -21,6 +24,9 @@ struct is_any_of : std::bool_constant<(std::is_same_v<T, Ts> || ...)> {};
 
 /**
  * @brief Вспомогательная метафункция для проверки вхождения типа в множество
+ *
+ * Можно использовать вместе со static_assert для ограничения передаваемых
+ * типов
  *
  * @param T     Проверяемый тип
  * @param Ts    Множество типов
@@ -72,49 +78,6 @@ SITL_API uint64_t convertFromHex(std::string_view hex);
  *                  содержит делитель
  */
 SITL_API std::vector<std::string> split(const std::string &string, char delimiter);
-
-
-/**
- * @brief Добавление к строке нескольких кусков строк
- *
- * Это работает без создания временных объектов, как например здесь:
- * @code buffer += "temp" + std::string{"asd"} + "anther";
- *
- * @tparam T        Тип первого аргемента
- * @tparam Ts       Типы остальных аргументов
- * @param buffer    Буффер, в который будут добавлятся куски строк
- * @param arg       Первый аргумент. Всегда должен быть
- * @param args      Остальные аргументы. Их может и не быть
- */
-template <typename T, typename... Ts>
-void append(std::string &buffer, T&& arg, Ts&&... args)
-{
-    using dummy = int[];
-    static_cast<void>(dummy {
-        (static_cast<void>(buffer.append(std::forward<T>(arg))), 0),
-        (static_cast<void>(buffer.append(std::forward<Ts>(args))), 0)...
-    });
-}
-
-
-/**
- * @brief Добавление к строке нескольких кусков строк и одного символа переноса
- *
- * Это работает без создания временных объектов, как например здесь:
- * @code buffer += "temp" + std::string{"asd"} + "anther\n";
- *
- * @tparam T        Тип первого аргемента
- * @tparam Ts       Типы остальных аргументов
- * @param buffer    Буффер, в который будут добавлятся куски строк
- * @param arg       Первый аргумент. Всегда должен быть
- * @param args      Остальные аргументы. Их может и не быть
- */
-template <typename T, typename... Ts>
-void appendLine(std::string &buffer, T&& arg, Ts&&... args)
-{
-    append(buffer, std::forward<T>(arg), std::forward<Ts>(args)...);
-    buffer.append(1, '\n');
-}
 
 }
 

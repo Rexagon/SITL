@@ -18,7 +18,7 @@ class SITL_API List
 {
 public:
     /**
-     * @brief Режим исполения команды.
+     * @brief   Режим исполения команды.
      */
     enum Type
     {
@@ -30,7 +30,7 @@ public:
 
 
     /**
-     * @brief Информация о команде
+     * @brief   Информация о команде
      */
     struct CommandInfo
     {
@@ -38,19 +38,25 @@ public:
     };
 
 
-    using ResultType = const std::unordered_map<std::string, CommandInfo>&;
-
-
     /**
-     * @brief   Команда LIST в одном из 2х режимов.
-     * @param type  Режим исполнения команды.
+     * @brief           Команда LIST в одном из 2х режимов.
+     * @param type      Режим исполнения команды.
      */
     explicit List(Type type = Type::FULL_INFO);
 
 
-    void encode(std::string &buffer) const;
+    /**
+     * @brief           Кодирует команду.
+     * @return          Строка с командой SITL
+     */
+    std::string encode() const;
 
 
+    /**
+     * @brief           Обрабатывает строку результата.
+     * @param line      Строка результата
+     * @return          Статус обработки
+     */
     Status decodeLine(const std::string &line);
 
 
@@ -63,7 +69,7 @@ public:
      *
      * @return  Таблица с возможными конфигурациями команд.
      */
-    ResultType getResult() const;
+    std::unordered_map<std::string, CommandInfo> getResult() const;
 
 private:
     Type m_type;

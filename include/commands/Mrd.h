@@ -18,23 +18,31 @@ public:
     static_assert(stuff::is_any_of_v<TA, uint8_t, uint16_t, uint32_t, uint64_t>);
     static_assert(stuff::is_any_of_v<TD, uint8_t, uint16_t, uint32_t, uint64_t>);
 
-    using ResultType = TD;
-
-
+    /**
+     * @brief           Создаёт команду чтения.
+     * @param address   Адрес чтения
+     */
     explicit Mrd(TA address) : m_address{address}, m_data{} {}
 
 
-    void encode(std::string &buffer) const
+    /**
+     * @brief           Кодирует команду.
+     * @return          Строка с командой SITL
+     */
+    std::string encode() const
     {
-        stuff::appendLine(buffer,
-            "MRD ",
-            stuff::convertToHex(m_address),
-            " -D",
-            std::to_string(sizeof(TD) * 8)
-        );
+        const auto address = stuff::convertToHex(m_address);
+        const auto dataSize = std::to_string(sizeof(TD) * 8);
+
+        return "MRD " + address + " -D" + dataSize + "\n";
     }
 
 
+    /**
+     * @brief           Обрабатывает строку результата.
+     * @param line      Строка результата
+     * @return          Статус обработки
+     */
     Status decodeLine(const std::string &line)
     {
         if (line.find("MRD") != 0 || line.size() != 50 ||
@@ -59,7 +67,7 @@ public:
      *
      * @return  Слово данных
      */
-    ResultType getResult() const
+    TD getResult() const
     {
         return m_data;
     }

@@ -17,11 +17,8 @@ namespace sitl
 {
 
 Connection::Connection(const std::string &port, unsigned int baudRate) :
-    m_portMutex{},
     m_service{},
-    m_serialPort{nullptr},
-    m_commandsBuffer{},
-    m_resultsBuffer{}
+    m_serialPort{nullptr}
 {
     m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
 
@@ -29,10 +26,7 @@ Connection::Connection(const std::string &port, unsigned int baudRate) :
     m_serialPort->set_option(asio::serial_port::flow_control(asio::serial_port::flow_control::none));
     m_serialPort->set_option(asio::serial_port::parity(asio::serial_port::parity::none));
     m_serialPort->set_option(asio::serial_port::stop_bits(asio::serial_port::stop_bits::one));
-    m_serialPort->set_option(asio::serial_port::character_size(8));
-
-    m_commandsBuffer.reserve(128);
-    m_resultsBuffer.reserve(128);
+    m_serialPort->set_option(asio::serial_port::character_size(8));;
 }
 
 
@@ -89,6 +83,5 @@ void Connection::serialPortWrite(const std::string &data)
         throw std::runtime_error(error.message());
     }
 }
-
 
 }

@@ -15,12 +15,18 @@ namespace sitl::cmds
 class SITL_API Iden
 {
 public:
-    using ResultType = const std::string&;
+    /**
+     * @brief       Кодирует команду.
+     * @return      Строка с командой SITL
+     */
+    std::string encode() const;
 
 
-    void encode(std::string &buffer) const;
-
-
+    /**
+     * @brief       Обрабатывает строку результата.
+     * @param line  Строка результата
+     * @return      Статус обработки
+     */
     Status decodeLine(const std::string& line);
 
 
@@ -29,7 +35,7 @@ public:
      *          оборудования
      * @return  Текст из нескольких строк
      */
-    ResultType getResult() const;
+    std::string getResult() const;
 
 private:
     std::string m_info{};

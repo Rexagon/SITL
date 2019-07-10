@@ -30,63 +30,125 @@ public:
     explicit Connection(const std::string &port, unsigned int baudRate);
 
 
+    /**
+     * @brief           Записывает данные по указанному адреса
+     * @param address   Адрес (32 разряда)
+     * @param data      Слово данных (32 разряда)
+     */
     void writeMemory(uint32_t address, uint32_t data);
 
 
+    /**
+     * @brief           Считывает данные по указанному адресу
+     * @param address   Адрес (32 разряда)
+     * @return          Слово данных (32 разряда)
+     */
     uint32_t readMemory(uint32_t address);
 
 
+    /**
+     * @brief           Выполняет указанную команду.
+     *
+     * Класс команды должен выглядеть примерно так (то есть содержать указанные
+     * методы):
+     *
+     * @code{.cpp}
+     *
+     * class CMD {
+     * public:
+     *     std::string encode();
+     *
+     *     Status decodeLine(const std::string& line);
+     *
+     *     ANY_NEEDED_TYPE getResult();
+     * };
+     *
+     * @endcode
+     *
+     * Функция encode() должна возвращать строку, с закодированной командой.
+     * Например для MRD с адресом 0xFFAA и размером данных 1 байт она должна
+     * возвращать 'MRW FFAA -D8'.
+     *
+     * Функция decodeLine() нужна для построчной обработки приходящего
+     * результата. Команда должна выделять из строки необходимые данные и
+     * обрабатывать их. Функция будет вызываеться для вновь пришедших от
+     * устройства данных до тех пор, пока она не вернёт статус отличный от
+     * IN_PROCESS.
+     *
+     * Тип данных, возвращаемый методом getResult() будет определять что вернёт
+     * функция Connection::execute() при успешной обработки результата. Метод
+     * getResult() не должен возвращать ссылки или указатели, время жизни
+     * которых не больше времени жизни самой команды. Т.к. команда создаётся
+     * только на время выполнения метода Connection::execute().
+     *
+     * @tparam T        Класс команды
+     * @param args      Аргументы конструктора указанной команды
+     * @return          При успешной обработке верёт результат вызова метода
+     *                  getResult() у команды
+     */
     template <typename T, typename... Ts>
-    typename T::ResultType execute(Ts&&... args)
-    {
-        T command(std::forward<Ts>(args)...);
-
-        // Конвертируем и отправляем всю команду
-        m_commandsBuffer.clear();
-        command.encode(m_commandsBuffer);
-        serialPortWrite(m_commandsBuffer);
-
-        // Начинаем считывание
-        bool isReading = true;
-        while (isReading)
-        {
-            // Считываем одну строку результата
-            m_resultsBuffer.clear();
-            serialPortRead(m_resultsBuffer);
-
-            // Обрабатываем строку
-            const auto status = command.decodeLine(m_resultsBuffer);
-            switch (status)
-            {
-                case cmds::Status::IN_PROCESS:
-                    break;
-
-                case cmds::Status::FINISHED_DONE:
-                    isReading = false;
-                    break;
-
-                // TODO: проверить другие коды
-
-                default:
-                    throw std::runtime_error{"Операция завершена с ошибкой"};
-            }
-        }
-
-        return command.getResult();
-    }
+    auto execute(Ts&&... args) -> auto;
 
 private:
+    /**
+     * @brief       Отправляет на устройство полностью всю строку.
+     * @param data  Строка данных
+     */
     void serialPortWrite(const std::string &data);
+
+
+    /**
+     * @brief       Считывает одну строку (читает все данные из буффера, пока
+     *              не встретит \n).
+     * @param line  Буффер, куда допишется считанная строка. Причём строка точно
+     *              не будет содержать символы \n и \r
+     * @return      Длина считанной строки
+     */
     size_t serialPortRead(std::string &line);
 
-    std::mutex m_portMutex;
 
     boost::asio::io_service m_service;
     std::unique_ptr<boost::asio::serial_port> m_serialPort;
-
-    std::string m_commandsBuffer;
-    std::string m_resultsBuffer;
 };
+
+
+template<typename T, typename... Ts>
+auto Connection::execute(Ts &&... args) -> auto
+{
+    T command(std::forward<Ts>(args)...);
+
+    // Конвертируем и отправляем всю команду
+    auto buffer = command.encode();
+    serialPortWrite(buffer);
+
+    // Начинаем считывание
+    bool isReading = true;
+    while (isReading)
+    {
+        // Считываем одну строку результата
+        buffer.clear();
+        serialPortRead(buffer);
+
+        // Обрабатываем строку
+        const auto status = command.decodeLine(buffer);
+        switch (status)
+        {
+            case cmds::Status::IN_PROCESS:
+                break;
+
+            case cmds::Status::FINISHED_DONE:
+                isReading = false;
+                break;
+
+                // TODO: проверить другие коды
+
+            default:
+                throw std::runtime_error{"Операция завершена с ошибкой"};
+        }
+    }
+
+    return command.getResult();
+}
 
 }
 

@@ -10,10 +10,7 @@
 template <typename T>
 void testManualEncoding(const T& command, const std::string& target)
 {
-    std::string buffer;
-    command.encode(buffer);
-
-    REQUIRE(buffer == target);
+    REQUIRE(command.encode() == target);
 }
 
 
@@ -70,11 +67,8 @@ TEST_CASE("IDEN command")
 
     SECTION("Encoding")
     {
-        std::string buffer;
-        idenCmd.encode(buffer);
-
         // Дважды, т.к. это единственный способ найти конец результата
-        REQUIRE(buffer == "IDEN\nIDEN\n");
+        testManualEncoding(idenCmd, "IDEN\nIDEN\n");
     }
 
     SECTION("Decoding")
@@ -130,10 +124,7 @@ TEST_CASE("MWR command")
 
     SECTION("Encoding")
     {
-        std::string buffer;
-        mwrCmd.encode(buffer);
-
-        REQUIRE(buffer == "MWR DEAD 0000BEAF\n");
+        testManualEncoding(mwrCmd, "MWR DEAD 0000BEAF\n");
     }
 
     SECTION("Decoding")
@@ -153,10 +144,7 @@ TEST_CASE("MRD command")
 
     SECTION("Encoding")
     {
-        std::string buffer;
-        mrdCmd.encode(buffer);
-
-        REQUIRE(buffer == "MRD DEAD -D16\n");
+        testManualEncoding(mrdCmd, "MRD DEAD -D16\n");
     }
 
     SECTION("Decoding")
