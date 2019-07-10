@@ -39,33 +39,3 @@ TEST_CASE("Test string split")
 
     REQUIRE(!containsDelimiter);
 }
-
-TEST_CASE("Test append")
-{
-    std::string buffer = "some";
-
-    SECTION("Single argument")
-    {
-        sitl::stuff::append(buffer, "where");
-
-        REQUIRE(buffer == "somewhere");
-    }
-
-    SECTION("Multiple arguments")
-    {
-        sitl::stuff::append(buffer,
-            std::string{"body"},
-            std::string_view{" told me "},
-            "the world is gonna roll me"
-        );
-
-        REQUIRE(buffer == "somebody told me the world is gonna roll me");
-    }
-
-    SECTION("Append line")
-    {
-        sitl::stuff::appendLine(buffer, std::string{"one"});
-
-        REQUIRE(buffer == "someone\n");
-    }
-}

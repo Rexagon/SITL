@@ -8,17 +8,17 @@
 #include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 
+#include "commands/Mwr.h"
+#include "commands/Mrd.h"
+
 using namespace boost;
 
 namespace sitl
 {
 
 Connection::Connection(const std::string &port, unsigned int baudRate) :
-    m_portMutex{},
     m_service{},
-    m_serialPort{nullptr},
-    m_commandsBuffer{},
-    m_resultsBuffer{}
+    m_serialPort{nullptr}
 {
     m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
 
@@ -26,53 +26,19 @@ Connection::Connection(const std::string &port, unsigned int baudRate) :
     m_serialPort->set_option(asio::serial_port::flow_control(asio::serial_port::flow_control::none));
     m_serialPort->set_option(asio::serial_port::parity(asio::serial_port::parity::none));
     m_serialPort->set_option(asio::serial_port::stop_bits(asio::serial_port::stop_bits::one));
-    m_serialPort->set_option(asio::serial_port::character_size(8));
-
-    m_commandsBuffer.reserve(128);
-    m_resultsBuffer.reserve(128);
+    m_serialPort->set_option(asio::serial_port::character_size(8));;
 }
 
 
-void Connection::makeTransaction(sitl::Command &command)
+void Connection::writeMemory(uint32_t address, uint32_t data)
 {
-    // write command
-    m_commandsBuffer.clear();
-    command.encodeCommand(m_commandsBuffer);
-    serialPortWrite(m_commandsBuffer);
+    execute<cmds::Mwr<uint32_t, uint32_t>>(address, data);
+}
 
-    // read command results
-    bool isReading = true;
-    while(isReading)
-    {
-        m_resultsBuffer.clear();
-        const auto symbolCount = serialPortRead(m_resultsBuffer);
 
-        if (symbolCount < Command::RESULT_LINE_LENGTH) {
-            throw std::runtime_error{
-                "Слишком короткая строка результата"
-            };
-        }
-
-        const auto status = command.handleResult(m_resultsBuffer);
-        switch (status)
-        {
-            case Command::IN_PROCESS:
-                break;
-
-            case Command::FINISHED_DONE:
-                command.markCompleted();
-                m_resultsBuffer.clear();
-                isReading = false;
-                break;
-
-            // TODO: проверить другие коды
-
-            default:
-                throw std::runtime_error{
-                    "Операция завершена с ошибкой"
-                };
-        }
-    }
+uint32_t Connection::readMemory(uint32_t address)
+{
+    return execute<cmds::Mrd<uint32_t, uint32_t>>(address);
 }
 
 

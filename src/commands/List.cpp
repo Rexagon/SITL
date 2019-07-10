@@ -10,38 +10,49 @@
 namespace sitl::cmds
 {
 
-namespace
-{
-constexpr auto KEYWORD = "LIST";
-}
-
 List::List(List::Type type) :
     m_type(type)
 {
 }
 
-void List::encodeCommand(std::string &buffer) const
+
+std::string List::encode() const
 {
+    std::string result = "LIST\n";
+
     if (m_type == Type::FULL_INFO)
     {
         // У результатов этой команды нет точного конца, но есть точное начало.
         // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
-        stuff::appendLine(buffer, KEYWORD, "\n", KEYWORD);
+        return result + result;
     }
-    else
-    {
-        stuff::appendLine(buffer, KEYWORD);
-    }
+
+    return result;
 }
 
-Command::Status List::handleResult(const std::string &line)
+
+Status List::decodeLine(const std::string &line)
 {
-    if (line.find("LIST:") == 0 &&
-        (m_type == SINGLE_PING || !m_availableCommands.empty()))
+    // Если строка начинается с 'LIST:' (такой строкой будет только первая в
+    // результате выполнения команды)
+    if (line.find("LIST:") == 0)
     {
-        return Status::FINISHED_DONE;
+        // Если команда была создана просто как пинг то первой строки достаточно.
+        // Если мы уже заполнили какие-то данные, и получили строку 'LIST:', то
+        // это означает начало результатов выполнения второй команды. Она нам не
+        // нужна, но теперь точно известен конец первой команды
+        if (m_type == SINGLE_PING || !m_availableCommands.empty())
+        {
+            return Status::FINISHED_DONE;
+        }
+        else
+        {
+            // Была только первая строка в результате, значит обрабатываем дальше
+            return Status::IN_PROCESS;
+        }
     }
 
+    // Получаем информацию о команде из строки
     const auto keyword = extractKeyword(line);
 
     if (keyword == "INTRQ")
@@ -54,10 +65,12 @@ Command::Status List::handleResult(const std::string &line)
         //TODO: Обработать возможные параметры команд
     }
 
+    // Обработка ещё не закончена
     return Status::IN_PROCESS;
 }
 
-const std::unordered_map<std::string, List::CommandInfo> & List::getAvailableCommands() const
+
+std::unordered_map<std::string, List::CommandInfo> List::getResult() const
 {
     return m_availableCommands;
 }

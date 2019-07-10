@@ -14,11 +14,11 @@ namespace sitl::cmds
  * @brief   Команда для полечения списка команд, поддерживаемых текущей
  *          конфигурацией оборудования.
  */
-class SITL_API List : public Command
+class SITL_API List
 {
 public:
     /**
-     * @brief Режим исполения команды.
+     * @brief   Режим исполения команды.
      */
     enum Type
     {
@@ -30,7 +30,7 @@ public:
 
 
     /**
-     * @brief Информация о команде
+     * @brief   Информация о команде
      */
     struct CommandInfo
     {
@@ -39,10 +39,25 @@ public:
 
 
     /**
-     * @brief   Команда LIST в одном из 2х режимов.
-     * @param type  Режим исполнения команды.
+     * @brief           Команда LIST в одном из 2х режимов.
+     * @param type      Режим исполнения команды.
      */
-    List(Type type = Type::FULL_INFO);
+    explicit List(Type type = Type::FULL_INFO);
+
+
+    /**
+     * @brief           Кодирует команду.
+     * @return          Строка с командой SITL
+     */
+    std::string encode() const;
+
+
+    /**
+     * @brief           Обрабатывает строку результата.
+     * @param line      Строка результата
+     * @return          Статус обработки
+     */
+    Status decodeLine(const std::string &line);
 
 
     /**
@@ -54,11 +69,7 @@ public:
      *
      * @return  Таблица с возможными конфигурациями команд.
      */
-    const std::unordered_map<std::string, CommandInfo>& getAvailableCommands() const;
-
-
-    void encodeCommand(std::string &buffer) const override;
-    Status handleResult(const std::string &line) override;
+    std::unordered_map<std::string, CommandInfo> getResult() const;
 
 private:
     Type m_type;

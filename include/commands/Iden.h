@@ -12,19 +12,30 @@ namespace sitl::cmds
  *          (версии спецификации SITL) и данные о текущей конфигурации
  *          оборудования (SITL-ассемблере, SITL-процессоре, SITL-дизассемблере).
  */
-class SITL_API Iden : public Command
+class SITL_API Iden
 {
 public:
+    /**
+     * @brief       Кодирует команду.
+     * @return      Строка с командой SITL
+     */
+    std::string encode() const;
+
+
+    /**
+     * @brief       Обрабатывает строку результата.
+     * @param line  Строка результата
+     * @return      Статус обработки
+     */
+    Status decodeLine(const std::string& line);
+
+
     /**
      * @brief   Сведения о поддерживаемой версии языка SITL и конфигурации
      *          оборудования
      * @return  Текст из нескольких строк
      */
-    const std::string& getInfo() const;
-
-
-    void encodeCommand(std::string &buffer) const override;
-    Status handleResult(const std::string& line) override;
+    std::string getResult() const;
 
 private:
     std::string m_info{};
