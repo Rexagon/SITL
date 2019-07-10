@@ -5,9 +5,11 @@
 
 #include "Connection.h"
 
-#include <boost/asio/read.hpp>
+#include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
+#include <boost/asio/streambuf.hpp>
 
+#include "commands/Iden.h"
 #include "commands/Mwr.h"
 #include "commands/Mrd.h"
 
@@ -16,9 +18,9 @@ using namespace boost;
 namespace sitl
 {
 
-Connection::Connection(const std::string &port, unsigned int baudRate) :
-    m_service{},
-    m_serialPort{nullptr}
+Connection::Connection(const std::string &port, unsigned int baudRate)
+    : m_service{}
+    , m_serialPort{nullptr}
 {
     m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
 
@@ -26,50 +28,34 @@ Connection::Connection(const std::string &port, unsigned int baudRate) :
     m_serialPort->set_option(asio::serial_port::flow_control(asio::serial_port::flow_control::none));
     m_serialPort->set_option(asio::serial_port::parity(asio::serial_port::parity::none));
     m_serialPort->set_option(asio::serial_port::stop_bits(asio::serial_port::stop_bits::one));
-    m_serialPort->set_option(asio::serial_port::character_size(8));;
+    m_serialPort->set_option(asio::serial_port::character_size(8));
+
 }
 
 
-void Connection::writeMemory(uint32_t address, uint32_t data)
+void Connection::writeMemory(uint64_t address, uint64_t data)
 {
-    execute<cmds::Mwr<uint32_t, uint32_t>>(address, data);
+    execute<cmds::Mwr<uint64_t, uint64_t>>(address, data);
 }
 
 
-uint32_t Connection::readMemory(uint32_t address)
+uint64_t Connection::readMemory(uint64_t address)
 {
-    return execute<cmds::Mrd<uint32_t, uint32_t>>(address);
+    return execute<cmds::Mrd<uint64_t, uint64_t>>(address);
 }
 
 
 size_t Connection::serialPortRead(std::string &line)
 {
-    size_t symbolCount = 0;
+    asio::streambuf response;
 
-    while (true)
-    {
-        system::error_code error;
+    asio::read_until(*m_serialPort, response, '\n');
 
-        char symbol = 0;
-        asio::read(*m_serialPort, asio::buffer(&symbol, 1), error);
+    const std::string resp{(std::istreambuf_iterator<char>(&response)),
+        std::istreambuf_iterator<char>()};
+    line = resp;
 
-        if (error)
-        {
-            throw std::runtime_error(error.message());
-        }
-
-        switch (symbol)
-        {
-            case '\n':
-                return symbolCount;
-            case '\r':
-                break;
-            default:
-                ++symbolCount;
-                line += symbol;
-                break;
-        }
-    }
+    return resp.length();
 }
 
 

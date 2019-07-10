@@ -52,7 +52,7 @@ std::string convertToHex(T number, size_t length = sizeof(T) * 2)
 
     for (size_t i = 0, n = (length - 1) * 4; i < length; ++i, n -= 4)
     {
-        result[i] = digits[(number >> n) & 0xfu];
+        result[i] = digits[(static_cast<size_t>(number) >> n) & 0xfu];
     }
 
     return result;

@@ -20,9 +20,9 @@ public:
      * @param address   Адрес записи
      * @param data      Слово данных
      */
-    explicit Mwr(TA address, TD data) :
-        m_address{address},
-        m_dataWord{data}
+    explicit Mwr(TA address, TD data)
+        : m_address{address}
+        , m_dataWord{data}
     {
     }
 
@@ -47,11 +47,23 @@ public:
      */
     Status decodeLine(const std::string &line)
     {
-        if (line.find("MWR") != 0
-            || stuff::convertToHex(m_address) != extractAddress(line)
-            || stuff::convertToHex(m_dataWord) != extractDataWord(line))
+        if (line.find("MWR") != 0)
         {
             return Status::IN_PROCESS;
+        }
+
+        if (stuff::convertToHex(m_address) != extractAddress(line))
+        {
+            throw std::runtime_error{
+                "Несовпадение адреса в ответе"
+            };
+        }
+
+        if (stuff::convertToHex(m_dataWord) != extractDataWord(line))
+        {
+            throw std::runtime_error{
+                "Несовпадение слова данных в ответе"
+            };
         }
 
         const auto status = extractStatus(line);

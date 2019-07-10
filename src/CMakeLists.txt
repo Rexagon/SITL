@@ -69,8 +69,6 @@ set_target_properties(pysitl
     LIBRARY_OUTPUT_DIRECTORY ${BUILD_OUTPUT_DIR}
 )
 
-target_compile_definitions(pysitl PRIVATE BOOST_PYTHON_STATIC_LIB)
-
 add_custom_command(TARGET sitl POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libgcc_s_dw2-1.dll ${BUILD_OUTPUT_DIR}/
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libstdc++-6.dll ${BUILD_OUTPUT_DIR}/

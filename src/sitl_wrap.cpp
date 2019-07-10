@@ -41,7 +41,7 @@ BOOST_PYTHON_MODULE(pysitl)
         scope sitl_scope = class_<sitl::Connection, boost::noncopyable>("Connection", no_init)
             .def(init<const std::string&, unsigned int>(args("port", "baud_rate")))
             .def("write_memory", &sitl::Connection::writeMemory, args("address", "data"))
-            .def("read_memory", &sitl::Connection::writeMemory, args("address"))
+            .def("read_memory", &sitl::Connection::readMemory, args("address"))
             .def("__str__", Connection_str)
             .def("__repr__", Connection_str)
             ;

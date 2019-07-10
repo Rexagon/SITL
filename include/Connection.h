@@ -32,18 +32,18 @@ public:
 
     /**
      * @brief           Записывает данные по указанному адреса
-     * @param address   Адрес (32 разряда)
-     * @param data      Слово данных (32 разряда)
+     * @param address   Адрес (64 разряда)
+     * @param data      Слово данных (64 разряда)
      */
-    void writeMemory(uint32_t address, uint32_t data);
+    void writeMemory(uint64_t address, uint64_t data);
 
 
     /**
      * @brief           Считывает данные по указанному адресу
-     * @param address   Адрес (32 разряда)
-     * @return          Слово данных (32 разряда)
+     * @param address   Адрес (64 разряда)
+     * @return          Слово данных (64 разряда)
      */
-    uint32_t readMemory(uint32_t address);
+    uint64_t readMemory(uint64_t address);
 
 
     /**
@@ -131,6 +131,7 @@ auto Connection::execute(Ts &&... args) -> auto
 
         // Обрабатываем строку
         const auto status = command.decodeLine(buffer);
+
         switch (status)
         {
             case cmds::Status::IN_PROCESS:

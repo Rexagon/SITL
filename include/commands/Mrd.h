@@ -22,7 +22,10 @@ public:
      * @brief           Создаёт команду чтения.
      * @param address   Адрес чтения
      */
-    explicit Mrd(TA address) : m_address{address}, m_data{} {}
+    explicit Mrd(TA address)
+        : m_address{address}
+        , m_data{}
+    {}
 
 
     /**
@@ -32,7 +35,13 @@ public:
     std::string encode() const
     {
         const auto address = stuff::convertToHex(m_address);
-        const auto dataSize = std::to_string(sizeof(TD) * 8);
+        auto dataSize = std::to_string(sizeof(TD) * 8);
+
+        // Отдельный случай для -D08
+        if (dataSize.length() < 2)
+        {
+            dataSize = "0" + dataSize;
+        }
 
         return "MRD " + address + " -D" + dataSize + "\n";
     }
@@ -45,11 +54,16 @@ public:
      */
     Status decodeLine(const std::string &line)
     {
-        if (line.find("MRD") != 0
-            || line.size() != 50
-            || stuff::convertToHex(m_address) != extractAddress(line))
+        if (line.find("MRD") != 0)
         {
             return Status::IN_PROCESS;
+        }
+
+        if (stuff::convertToHex(m_address) != extractAddress(line))
+        {
+            throw std::runtime_error{
+                "Несовпадение адреса в ответе"
+            };
         }
 
         m_data = static_cast<TD>(stuff::convertFromHex(extractDataWord(line)));

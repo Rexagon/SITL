@@ -10,8 +10,8 @@
 namespace sitl::cmds
 {
 
-List::List(List::Type type) :
-    m_type(type)
+List::List(List::Type type)
+    : m_type(type)
 {
 }
 
