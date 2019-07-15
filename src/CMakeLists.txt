@@ -7,12 +7,19 @@ set(SITL_SRC
 
 add_library(sitl SHARED ${SITL_SRC})
 
+set(CMAKE_DEST cmake)
+set(BINARY_DEST bin)
+set(LIBRARY_DEST lib)
+set(INCLUDE_DEST include)
+
 target_include_directories(sitl
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${INCLUDE_DEST}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
 
 target_link_libraries(sitl
     Ws2_32
@@ -73,4 +80,21 @@ add_custom_command(TARGET sitl POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libgcc_s_dw2-1.dll ${BUILD_OUTPUT_DIR}/
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libstdc++-6.dll ${BUILD_OUTPUT_DIR}/
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EXTLIBS_DIR}/MinGWLibs/bin/libwinpthread-1.dll ${BUILD_OUTPUT_DIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${Boost_PYTHON27_LIBRARY} ${BUILD_OUTPUT_DIR}
 )
+
+# installation
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${INCLUDE_DEST})
+
+install(TARGETS sitl EXPORT lib
+        RUNTIME DESTINATION ${BINARY_DEST}
+        ARCHIVE DESTINATION ${LIBRARY_DEST}
+)
+install(EXPORT lib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST})
+
+install(TARGETS pysitl EXPORT pylib
+        LIBRARY DESTINATION ${BINARY_DEST}
+)
+install(EXPORT pylib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST})
+
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/sitl-config.cmake DESTINATION "./")

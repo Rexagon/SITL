@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(libsitl)
+project(sitl)
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SYSTEM_BIT_POSTFIX x64)
