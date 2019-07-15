@@ -33,18 +33,6 @@ Connection::Connection(const std::string &port, unsigned int baudRate)
 }
 
 
-void Connection::writeMemory(uint64_t address, uint64_t data)
-{
-    execute<cmds::Mwr<uint64_t, uint64_t>>(address, data);
-}
-
-
-uint64_t Connection::readMemory(uint64_t address)
-{
-    return execute<cmds::Mrd<uint64_t, uint64_t>>(address);
-}
-
-
 size_t Connection::serialPortRead(std::string &line)
 {
     asio::streambuf response;

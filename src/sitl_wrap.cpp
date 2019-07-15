@@ -18,7 +18,41 @@
 #include <boost/python.hpp>
 #pragma GCC diagnostic pop
 
-std::string Connection_str(const sitl::Connection&/*connection*/)
+class ConnectionWrapper
+{
+public:
+    ConnectionWrapper(const std::string &port, unsigned int baudRate)
+        : m_connection(port, baudRate)
+    {
+    }
+
+
+    /**
+     * @brief           Записывает данные по указанному адреса
+     * @param address   Адрес (64 разряда)
+     * @param data      Слово данных (64 разряда)
+     */
+    void writeMemory(uint64_t address, uint64_t data)
+    {
+        m_connection.execute<sitl::cmds::Mwr<uint64_t, uint64_t>>(address, data);
+    }
+
+
+    /**
+     * @brief           Считывает данные по указанному адресу
+     * @param address   Адрес (64 разряда)
+     * @return          Слово данных (64 разряда)
+     */
+    uint64_t readMemory(uint64_t address)
+    {
+        return m_connection.execute<sitl::cmds::Mrd<uint64_t, uint64_t>>(address);
+    }
+
+private:
+    sitl::Connection m_connection;
+};
+
+std::string Connection_str(const ConnectionWrapper&/*connection*/)
 {
     return "Экземпляр класса соединения с утройство по протоколу SITL";
 }
@@ -38,10 +72,10 @@ BOOST_PYTHON_MODULE(pysitl)
     scope().attr("__email__")       = object( "i.kalinin@module.ru");
 
     {
-        scope sitl_scope = class_<sitl::Connection, boost::noncopyable>("Connection", no_init)
+        scope sitl_scope = class_<ConnectionWrapper, boost::noncopyable>("Connection", no_init)
             .def(init<const std::string&, unsigned int>(args("port", "baud_rate")))
-            .def("write_memory", &sitl::Connection::writeMemory, args("address", "data"))
-            .def("read_memory", &sitl::Connection::readMemory, args("address"))
+            .def("write_memory", &ConnectionWrapper::writeMemory, args("address", "data"))
+            .def("read_memory", &ConnectionWrapper::readMemory, args("address"))
             .def("__str__", Connection_str)
             .def("__repr__", Connection_str)
             ;
