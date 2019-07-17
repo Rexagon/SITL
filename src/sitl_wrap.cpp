@@ -30,11 +30,11 @@ public:
     /**
      * @brief           Записывает данные по указанному адреса
      * @param address   Адрес (64 разряда)
-     * @param data      Слово данных (64 разряда)
+     * @param data      Слово данных (8 разрядов)
      */
-    void writeMemory(uint64_t address, uint64_t data)
+    void writeMemory(uint64_t address, uint8_t data)
     {
-        m_connection.execute<sitl::cmds::Mwr<uint64_t, uint64_t>>(address, data);
+        m_connection.execute<sitl::cmds::Mwr<uint64_t, uint8_t>>(address, data);
     }
 
 
@@ -43,9 +43,9 @@ public:
      * @param address   Адрес (64 разряда)
      * @return          Слово данных (64 разряда)
      */
-    uint64_t readMemory(uint64_t address)
+    uint8_t readMemory(uint64_t address)
     {
-        return m_connection.execute<sitl::cmds::Mrd<uint64_t, uint64_t>>(address);
+        return m_connection.execute<sitl::cmds::Mrd<uint64_t, uint8_t>>(address);
     }
 
 private:
