@@ -21,7 +21,7 @@
 class ConnectionWrapper
 {
 public:
-    ConnectionWrapper(const std::string &port, unsigned int baudRate)
+    ConnectionWrapper(const std::string &port, const unsigned int baudRate)
         : m_connection(port, baudRate)
     {
     }
@@ -32,7 +32,7 @@ public:
      * @param address   Адрес (64 разряда)
      * @param data      Слово данных (8 разрядов)
      */
-    void writeMemory(uint64_t address, uint8_t data)
+    void writeMemory(const uint64_t address, const uint8_t data)
     {
         m_connection.execute<sitl::cmds::Mwr<uint64_t, uint8_t>>(address, data);
     }
@@ -43,7 +43,7 @@ public:
      * @param address   Адрес (64 разряда)
      * @return          Слово данных (64 разряда)
      */
-    uint8_t readMemory(uint64_t address)
+    uint8_t readMemory(const uint64_t address)
     {
         return m_connection.execute<sitl::cmds::Mrd<uint64_t, uint8_t>>(address);
     }

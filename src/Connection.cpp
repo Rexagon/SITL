@@ -18,7 +18,7 @@ using namespace boost;
 namespace sitl
 {
 
-Connection::Connection(const std::string &port, unsigned int baudRate)
+Connection::Connection(const std::string &port, const unsigned int baudRate)
     : m_service{}
     , m_serialPort{nullptr}
 {

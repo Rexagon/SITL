@@ -55,7 +55,7 @@ std::string_view extractStatus(const std::string &line)
 }
 
 
-Status statusFromString(std::string_view statusString)
+Status statusFromString(const std::string_view statusString)
 {
     static std::unordered_map<std::string_view, Status> statuses = {
         { "DONE",    Status::FINISHED_DONE  },

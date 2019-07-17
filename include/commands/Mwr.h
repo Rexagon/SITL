@@ -20,7 +20,7 @@ public:
      * @param address   Адрес записи
      * @param data      Слово данных
      */
-    explicit Mwr(TA address, TD data)
+    explicit Mwr(const TA address, const TD data)
         : m_address{address}
         , m_dataWord{data}
     {

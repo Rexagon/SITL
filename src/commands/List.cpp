@@ -10,7 +10,7 @@
 namespace sitl::cmds
 {
 
-List::List(List::Type type)
+List::List(const List::Type type)
     : m_type(type)
 {
 }

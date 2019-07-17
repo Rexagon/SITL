@@ -45,7 +45,7 @@ inline constexpr bool is_any_of_v = is_any_of<T, T1, Ts...>::value;
  *                  представляющая переданное число
  */
 template <typename T>
-std::string convertToHex(T number, size_t length = sizeof(T) * 2)
+std::string convertToHex(const T number, const size_t length = sizeof(T) * 2)
 {
     static auto digits = "0123456789ABCDEF";
     std::string result(length, '0');

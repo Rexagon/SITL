@@ -34,7 +34,7 @@ std::vector<std::string> split(const std::string &string, const char delimiter)
     return result;
 }
 
-uint64_t convertFromHex(std::string_view hex)
+uint64_t convertFromHex(const std::string_view hex)
 {
     uint64_t result = 0;
 

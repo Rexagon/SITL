@@ -22,7 +22,7 @@ public:
      * @brief           Создаёт команду чтения.
      * @param address   Адрес чтения
      */
-    explicit Mrd(TA address)
+    explicit Mrd(const TA address)
         : m_address{address}
         , m_data{}
     {}
