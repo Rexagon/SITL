@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Config.h"
+#include <sitl/Config.h>
 
 namespace sitl::stuff
 {

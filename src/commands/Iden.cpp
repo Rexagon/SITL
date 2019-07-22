@@ -3,7 +3,7 @@
  * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
  */
 
-#include "commands/Iden.h"
+#include <sitl/commands/Iden.h>
 
 #include <functional>
 

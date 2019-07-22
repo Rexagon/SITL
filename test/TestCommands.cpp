@@ -5,7 +5,7 @@
 
 #include <catch.hpp>
 
-#include "sitl.h"
+#include <sitl/sitl.h>
 
 template <typename T>
 void testManualEncoding(const T& command, const std::string& target)

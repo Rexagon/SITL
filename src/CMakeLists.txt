@@ -22,8 +22,9 @@ target_include_directories(sitl
 
 
 target_link_libraries(sitl
-    Ws2_32
-    Boost::system
+    PUBLIC
+        Boost::system
+        Ws2_32
 )
 
 target_compile_definitions(sitl PRIVATE SITL_EXPORTS)

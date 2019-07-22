@@ -7,7 +7,7 @@
 
 #include <catch.hpp>
 
-#include "sitl.h"
+#include <sitl/sitl.h>
 
 constexpr static auto DEFAULT_COM = "COM4";
 constexpr static auto DEFAULT_BAUD_RATE = 115200;

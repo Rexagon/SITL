@@ -5,7 +5,7 @@
 
 #include <catch.hpp>
 
-#include "sitl.h"
+#include <sitl/sitl.h>
 
 TEST_CASE("Test converter")
 {

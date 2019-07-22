@@ -1,8 +1,8 @@
 #ifndef LIBSITL_MWR_H
 #define LIBSITL_MWR_H
 
-#include "Command.h"
-#include "Config.h"
+#include <sitl/Command.h>
+#include <sitl/Config.h>
 
 namespace sitl::cmds
 {

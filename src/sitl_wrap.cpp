@@ -3,7 +3,7 @@
 * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 */
 
-#include "sitl.h"
+#include <sitl/sitl.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattributes"

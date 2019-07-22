@@ -1,8 +1,8 @@
 #ifndef LIBSITL_IDEN_H
 #define LIBSITL_IDEN_H
 
-#include "Command.h"
-#include "Config.h"
+#include <sitl/Command.h>
+#include <sitl/Config.h>
 
 namespace sitl::cmds
 {

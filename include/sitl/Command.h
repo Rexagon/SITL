@@ -5,8 +5,8 @@
 #include <utility>
 #include <functional>
 
-#include "Config.h"
-#include "Stuff.h"
+#include <sitl/Config.h>
+#include <sitl/Stuff.h>
 
 namespace sitl::cmds
 {

@@ -3,15 +3,11 @@
  * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
  */
 
-#include "Connection.h"
+#include <sitl/Connection.h>
 
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/write.hpp>
-
-#include "commands/Iden.h"
-#include "commands/Mrd.h"
-#include "commands/Mwr.h"
 
 using namespace boost;
 
