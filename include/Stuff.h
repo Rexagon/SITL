@@ -1,13 +1,27 @@
 #ifndef LIBSITL_STUFF_H
 #define LIBSITL_STUFF_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "Config.h"
 
 namespace sitl::stuff
 {
+/**
+ * @brief Вспомогательная метафункция для проверки вхождения типа в множество
+ *
+ * Можно использовать вместе со static_assert для ограничения передаваемых
+ * типов
+ *
+ * @param T     Проверяемый тип
+ * @param Ts    Множество типов
+ */
+template <typename T, typename... Ts>
+struct is_any_of : std::bool_constant<(std::is_same_v<T, Ts> || ...)>
+{
+};
+
 
 /**
  * @brief Вспомогательная метафункция для проверки вхождения типа в множество
@@ -18,20 +32,7 @@ namespace sitl::stuff
  * @param T     Проверяемый тип
  * @param Ts    Множество типов
  */
-template<typename T, typename... Ts>
-struct is_any_of : std::bool_constant<(std::is_same_v<T, Ts> || ...)> {};
-
-
-/**
- * @brief Вспомогательная метафункция для проверки вхождения типа в множество
- *
- * Можно использовать вместе со static_assert для ограничения передаваемых
- * типов
- *
- * @param T     Проверяемый тип
- * @param Ts    Множество типов
- */
-template<typename T, typename T1, typename... Ts>
+template <typename T, typename T1, typename... Ts>
 inline constexpr bool is_any_of_v = is_any_of<T, T1, Ts...>::value;
 
 
@@ -79,6 +80,6 @@ SITL_API uint64_t convertFromHex(std::string_view hex);
  */
 SITL_API std::vector<std::string> split(const std::string &string, char delimiter);
 
-}
+} // namespace sitl::stuff
 
-#endif //LIBSITL_STUFF_H
+#endif // LIBSITL_STUFF_H

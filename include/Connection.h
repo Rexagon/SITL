@@ -2,20 +2,19 @@
 #define LIBSITL_CONNECTION_H
 
 #include <chrono>
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/serial_port.hpp>
 
-#include "Config.h"
 #include "Command.h"
+#include "Config.h"
 
 namespace sitl
 {
-
 /**
  * @brief   Соединение с устройством по протоколу SITL через serial port.
  */
@@ -71,7 +70,7 @@ public:
      *                  getResult() у команды
      */
     template <typename T, typename... Ts>
-    auto execute(Ts&&... args) -> auto;
+    auto execute(Ts &&... args) -> auto;
 
 private:
     /**
@@ -96,9 +95,12 @@ private:
 };
 
 
-template<typename T, typename... Ts>
+template <typename T, typename... Ts>
 auto Connection::execute(Ts &&... args) -> auto
 {
+    static_assert(cmds::is_command_v<T>, "Class T doesn't not implement command trait.\n"
+                                         "See Connection::execute comments for detailed explanation");
+
     T command(std::forward<Ts>(args)...);
 
     // Конвертируем и отправляем всю команду
@@ -135,6 +137,6 @@ auto Connection::execute(Ts &&... args) -> auto
     return command.getResult();
 }
 
-}
+} // namespace sitl
 
-#endif //LIBSITL_CONNECTION_H
+#endif // LIBSITL_CONNECTION_H

@@ -1,15 +1,14 @@
 #ifndef LIBSITL_LIST_H
 #define LIBSITL_LIST_H
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "Config.h"
 #include "Command.h"
+#include "Config.h"
 
 namespace sitl::cmds
 {
-
 /**
  * @brief   Команда для полечения списка команд, поддерживаемых текущей
  *          конфигурацией оборудования.
@@ -22,7 +21,7 @@ public:
      */
     enum Type
     {
-        FULL_INFO,  ///< Команда выполняется 2 раза, получая всю необходимую информацию.
+        FULL_INFO, ///< Команда выполняется 2 раза, получая всю необходимую информацию.
         SINGLE_PING ///< Команда выполняется 1 раз, не обрабатывая полученный результат.
                     ///< В таком режиме можно с некоторой периодичностью проверять
                     ///< работоспособность устройства.
@@ -34,7 +33,7 @@ public:
      */
     struct CommandInfo
     {
-        //TODO: указать здесь возможные разрядности и т.д.
+        // TODO: указать здесь возможные разрядности и т.д.
     };
 
 
@@ -76,6 +75,6 @@ private:
     std::unordered_map<std::string, CommandInfo> m_availableCommands{};
 };
 
-}
+} // namespace sitl::cmds
 
-#endif //LIBSITL_LIST_H
+#endif // LIBSITL_LIST_H

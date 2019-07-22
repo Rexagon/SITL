@@ -1,7 +1,7 @@
 /*
-* This is an open source non-commercial project. Dear PVS-Studio, please check it.
-* PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-*/
+ * This is an open source non-commercial project. Dear PVS-Studio, please check it.
+ * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+ */
 
 #include "commands/List.h"
 
@@ -9,7 +9,6 @@
 
 namespace sitl::cmds
 {
-
 List::List(const List::Type type)
     : m_type(type)
 {
@@ -57,12 +56,12 @@ Status List::decodeLine(const std::string &line)
 
     if (keyword == "INTRQ")
     {
-        //TODO: Обработать наличие и количество входов аппаратных прерываний
+        // TODO: Обработать наличие и количество входов аппаратных прерываний
     }
     else
     {
         m_availableCommands.emplace(std::string{keyword}, CommandInfo{});
-        //TODO: Обработать возможные параметры команд
+        // TODO: Обработать возможные параметры команд
     }
 
     // Обработка ещё не закончена
@@ -75,4 +74,4 @@ std::unordered_map<std::string, List::CommandInfo> List::getResult() const
     return m_availableCommands;
 }
 
-}
+} // namespace sitl::cmds

@@ -13,4 +13,4 @@
 #define SITL_EXPORTS __attribute__((visibility("default")))
 #endif
 
-#endif //LIBSITL_CONFIG_H
+#endif // LIBSITL_CONFIG_H

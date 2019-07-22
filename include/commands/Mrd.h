@@ -1,12 +1,11 @@
 #ifndef LIBSITL_MRD_H
 #define LIBSITL_MRD_H
 
-#include "Config.h"
 #include "Command.h"
+#include "Config.h"
 
 namespace sitl::cmds
 {
-
 /**
  * @brief   Команда, выполняющая чтение одиночного слова данных в адресном
  *          пространстве памяти.
@@ -25,7 +24,8 @@ public:
     explicit Mrd(const TA address)
         : m_address{address}
         , m_data{}
-    {}
+    {
+    }
 
 
     /**
@@ -61,9 +61,7 @@ public:
 
         if (stuff::convertToHex(m_address) != extractAddress(line))
         {
-            throw std::runtime_error{
-                "Несовпадение адреса в ответе"
-            };
+            throw std::runtime_error{"Несовпадение адреса в ответе"};
         }
 
         m_data = static_cast<TD>(stuff::convertFromHex(extractDataWord(line)));
@@ -92,6 +90,6 @@ private:
     TD m_data;
 };
 
-}
+} // namespace sitl::cmds
 
-#endif //LIBSITL_MRD_H
+#endif // LIBSITL_MRD_H

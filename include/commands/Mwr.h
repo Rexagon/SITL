@@ -1,12 +1,11 @@
 #ifndef LIBSITL_MWR_H
 #define LIBSITL_MWR_H
 
-#include "Config.h"
 #include "Command.h"
+#include "Config.h"
 
 namespace sitl::cmds
 {
-
 /**
  * @brief   Команда, выполняющая запись одиночного слова данных в адресном
  *          пространстве памяти.
@@ -54,16 +53,12 @@ public:
 
         if (stuff::convertToHex(m_address) != extractAddress(line))
         {
-            throw std::runtime_error{
-                "Несовпадение адреса в ответе"
-            };
+            throw std::runtime_error{"Несовпадение адреса в ответе"};
         }
 
         if (stuff::convertToHex(m_dataWord) != extractDataWord(line))
         {
-            throw std::runtime_error{
-                "Несовпадение слова данных в ответе"
-            };
+            throw std::runtime_error{"Несовпадение слова данных в ответе"};
         }
 
         const auto status = extractStatus(line);
@@ -77,13 +72,15 @@ public:
      *
      * Этот метод должен быть определён.
      */
-    void getResult() {}
+    void getResult()
+    {
+    }
 
 private:
     TA m_address;
     TD m_dataWord;
 };
 
-}
+} // namespace sitl::cmds
 
-#endif //LIBSITL_MWR_H
+#endif // LIBSITL_MWR_H

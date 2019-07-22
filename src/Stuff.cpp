@@ -1,7 +1,7 @@
 /*
-* This is an open source non-commercial project. Dear PVS-Studio, please check it.
-* PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-*/
+ * This is an open source non-commercial project. Dear PVS-Studio, please check it.
+ * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+ */
 
 #include "Stuff.h"
 
@@ -9,7 +9,6 @@
 
 namespace sitl::stuff
 {
-
 std::vector<std::string> split(const std::string &string, const char delimiter)
 {
     std::vector<std::string> result;
@@ -50,21 +49,17 @@ uint64_t convertFromHex(const std::string_view hex)
         // Бросам исключение если символ не шестнадцатиричный
         if (!isdigit(symbol) && (symbol < 'A' || symbol > 'F'))
         {
-            throw std::runtime_error{
-                "Невозможно конвертировать hex строку в число"
-            };
+            throw std::runtime_error{"Невозможно конвертировать hex строку в число"};
         }
 
         // Переводим шестнадцатиричный символ в число
-        const auto number = static_cast<uint64_t>(
-            isdigit(symbol) ? (symbol - '0') : (10 + (symbol - 'A'))
-        );
+        const auto number = static_cast<uint64_t>(isdigit(symbol) ? (symbol - '0') : (10 + (symbol - 'A')));
 
         // Добавляем это число на соответствующее место результата
-        result |= (number & 0xfu ) << n;
+        result |= (number & 0xfu) << n;
     }
 
     return result;
 }
 
-}
+} // namespace sitl::stuff

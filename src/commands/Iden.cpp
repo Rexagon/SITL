@@ -1,7 +1,7 @@
 /*
-* This is an open source non-commercial project. Dear PVS-Studio, please check it.
-* PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-*/
+ * This is an open source non-commercial project. Dear PVS-Studio, please check it.
+ * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+ */
 
 #include "commands/Iden.h"
 
@@ -9,7 +9,6 @@
 
 namespace sitl::cmds
 {
-
 std::string Iden::encode() const
 {
     std::string result = "IDEN\n";
@@ -26,7 +25,8 @@ Status Iden::decodeLine(const std::string &line)
     // с 'IDEN:', то значит уже обрабатывается результат выполнения второй
     // команды. Он нам не нужен, но зато теперь ясно что закончился результат
     // выполнения первой команды.
-    if (!m_info.empty() && line.find("IDEN:") == 0) {
+    if (!m_info.empty() && line.find("IDEN:") == 0)
+    {
         // Результат выполнения команды обработан
         return Status::FINISHED_DONE;
     }
@@ -55,4 +55,4 @@ std::string Iden::getResult() const
     return m_info;
 }
 
-}
+} // namespace sitl::cmds

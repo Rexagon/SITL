@@ -1,12 +1,11 @@
 #ifndef LIBSITL_IDEN_H
 #define LIBSITL_IDEN_H
 
-#include "Config.h"
 #include "Command.h"
+#include "Config.h"
 
 namespace sitl::cmds
 {
-
 /**
  * @brief   Команда для получения сведения о поддерживаемой версии языка SITL
  *          (версии спецификации SITL) и данные о текущей конфигурации
@@ -27,7 +26,7 @@ public:
      * @param line  Строка результата
      * @return      Статус обработки
      */
-    Status decodeLine(const std::string& line);
+    Status decodeLine(const std::string &line);
 
 
     /**
@@ -41,6 +40,6 @@ private:
     std::string m_info{};
 };
 
-}
+} // namespace sitl::cmds
 
-#endif //LIBSITL_IDEN_H
+#endif // LIBSITL_IDEN_H

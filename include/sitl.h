@@ -4,9 +4,9 @@
 #include "Connection.h"
 #include "Stuff.h"
 
-#include "commands/List.h"
 #include "commands/Iden.h"
-#include "commands/Mwr.h"
+#include "commands/List.h"
 #include "commands/Mrd.h"
+#include "commands/Mwr.h"
 
-#endif //LIBSITL_SITL_H
+#endif // LIBSITL_SITL_H
