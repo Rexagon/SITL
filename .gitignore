@@ -3,6 +3,7 @@
 .idea
 
 build
+dist
 CMakeFiles
 
 cmake-build-*

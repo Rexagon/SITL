@@ -87,15 +87,15 @@ add_custom_command(TARGET sitl POST_BUILD
 # installation
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${INCLUDE_DEST})
 
-install(TARGETS sitl EXPORT lib
+install(TARGETS sitl EXPORT lib COMPONENT sitl
         RUNTIME DESTINATION ${BINARY_DEST}
         ARCHIVE DESTINATION ${LIBRARY_DEST}
 )
-install(EXPORT lib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST})
+install(EXPORT lib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST} COMPONENT sitl)
 
-install(TARGETS pysitl EXPORT pylib
+install(TARGETS pysitl EXPORT pylib COMPONENT pysitl
         LIBRARY DESTINATION ${BINARY_DEST}
 )
-install(EXPORT pylib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST})
+install(EXPORT pylib NAMESPACE sitl:: DESTINATION ${CMAKE_DEST} COMPONENT pysitl)
 
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/sitl-config.cmake DESTINATION "./")
