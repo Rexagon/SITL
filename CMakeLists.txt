@@ -7,8 +7,13 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
     set(SYSTEM_BIT_POSTFIX x86)
 endif()
 
-set(EXTLIBS_DIR ${CMAKE_SOURCE_DIR}/extlibs)
+set(EXTLIBS_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
 set(BUILD_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/build)
+
+# boost library
+if (NOT DEFINED ENV{BOOST_ROOT})
+    set(ENV{BOOST_ROOT} C:/boost_1_70_0)
+endif()
 
 set(Boost_USE_DEBUG_LIBS    OFF)    # не используем дебажные версии
 set(Boost_USE_RELEASE_LIBS  ON)     # используем только релизные
