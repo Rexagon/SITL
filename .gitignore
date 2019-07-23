@@ -5,6 +5,6 @@
 build
 dist
 CMakeFiles
-cmakefiles_
+cmakefiles_*
 
 cmake-build-*
