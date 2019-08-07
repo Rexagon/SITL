@@ -22,7 +22,15 @@ set(Boost_ARCHITECTURE      "-x32")
 
 find_package(Boost REQUIRED COMPONENTS python27 system)
 
+# python library
 find_package(Python2 COMPONENTS Development)
+
+# catch2 library
+if (NOT DEFINED ENV{Catch2_DIR})
+    set(ENV{Catch2_DIR} ${EXTLIBS_DIR}/Catch2/dist/lib/cmake/Catch2)
+endif()
+
+find_package(Catch2 REQUIRED)
 
 # sitl library
 add_subdirectory(src)
