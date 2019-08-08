@@ -25,8 +25,9 @@ public:
      * @brief           Открывает соединение на указанном порту.
      * @param port      Название порта для установки соединения
      * @param baudRate  Скорость передачи
+     * @param loggingEnabled Выводить ли все передаваемые и получаемые команды
      */
-    explicit Connection(const std::string &port, unsigned int baudRate);
+    explicit Connection(const std::string &port, unsigned int baudRate, bool logginEnabled = false);
 
 
     /**
@@ -89,9 +90,13 @@ private:
      */
     size_t serialPortRead(std::string &line);
 
+    void log(const std::string &message);
+
 
     boost::asio::io_service m_service;
     std::unique_ptr<boost::asio::serial_port> m_serialPort;
+
+    bool m_isLoggingEnabled;
 };
 
 
@@ -106,6 +111,7 @@ auto Connection::execute(Ts &&... args) -> auto
     // Конвертируем и отправляем всю команду
     auto buffer = command.encode();
     serialPortWrite(buffer);
+    log("Sent:\t\t" + buffer);
 
     // Начинаем считывание
     bool isReading = true;
@@ -114,6 +120,7 @@ auto Connection::execute(Ts &&... args) -> auto
         // Считываем одну строку результата
         buffer.clear();
         serialPortRead(buffer);
+        log("Received:\t" + buffer);
 
         // Обрабатываем строку
         const auto status = command.decodeLine(buffer);

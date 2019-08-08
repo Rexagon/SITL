@@ -5,6 +5,8 @@
 
 #include <sitl/Connection.h>
 
+#include <iostream>
+
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/write.hpp>
@@ -13,9 +15,10 @@ using namespace boost;
 
 namespace sitl
 {
-Connection::Connection(const std::string &port, const unsigned int baudRate)
+Connection::Connection(const std::string &port, const unsigned int baudRate, bool loggingEnabled)
     : m_service{}
     , m_serialPort{nullptr}
+    , m_isLoggingEnabled{loggingEnabled}
 {
     m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
 
@@ -49,6 +52,17 @@ void Connection::serialPortWrite(const std::string &data)
     {
         throw std::runtime_error(error.message());
     }
+}
+
+
+void Connection::log(const std::string &message)
+{
+    if (!m_isLoggingEnabled)
+    {
+        return;
+    }
+
+    std::cout << message << std::endl;
 }
 
 } // namespace sitl
