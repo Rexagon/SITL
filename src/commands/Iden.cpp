@@ -14,38 +14,58 @@ std::string Iden::encode() const
     std::string result = "IDEN\n";
 
     // У результатов этой команды нет точного конца, но есть точное начало.
-    // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
+    // Исполняем команду дважды, для того чтобы узнать длину первого сообщения.
     return result + result;
 }
 
 
 Status Iden::decodeLine(const std::string &line)
 {
-    // Если информация уже чем-то заполнена и мы встретили строку, начинающуюся
-    // с 'IDEN:', то значит уже обрабатывается результат выполнения второй
-    // команды. Он нам не нужен, но зато теперь ясно что закончился результат
-    // выполнения первой команды.
-    if (!m_info.empty() && line.find("IDEN:") == 0)
+    // Если строка начинается с 'IDEN:'
+    if (line.find("IDEN:") == 0)
     {
-        // Результат выполнения команды обработан
-        return Status::FINISHED_DONE;
+        incrementState();
+        return Status::IN_PROCESS;
     }
 
-    // Находим позицию последнего пробела
-    auto pos = line.find_last_not_of(' ');
-    if (pos == std::string::npos)
+    incrementLine();
+
+    switch (m_state)
     {
-        pos = line.length();
-    }
-    else
-    {
-        ++pos;
+        // Сюда мы не должны попадать при нормальных входных данных
+        case State::None:
+            throw std::runtime_error{"Невозможно декодировать результат"};
+
+        // В первом состоянии происходит получение информации
+        case State::First:
+        {
+            // Находим позицию последнего пробела
+            auto pos = line.find_last_not_of(' ');
+            if (pos == std::string::npos)
+            {
+                pos = line.length();
+            }
+            else
+            {
+                ++pos;
+            }
+
+            // Убираем пробелы с конца строки и добавляем к результату
+            m_info += line.substr(0, pos) + "\n";
+
+            break;
+        }
+
+        // Во втором состоянии ждём столько же строк, сколько и в первом
+        case State::Second:
+            if (m_lineRead.second == m_lineRead.first)
+            {
+                return Status::FINISHED_DONE;
+            }
+
+            break;
     }
 
-    // Убираем пробелы с конца строки и добавляем к результату
-    m_info += line.substr(0, pos) + "\n";
-
-    // Не весь результат обработан
     return Status::IN_PROCESS;
 }
 
@@ -53,6 +73,42 @@ Status Iden::decodeLine(const std::string &line)
 std::string Iden::getResult() const
 {
     return m_info;
+}
+
+
+void Iden::incrementState()
+{
+    switch (m_state)
+    {
+        case State::None:
+            m_state = State::First;
+            break;
+
+        case State::First:
+            m_state = State::Second;
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void Iden::incrementLine()
+{
+    switch (m_state)
+    {
+        case State::First:
+            m_lineRead.first++;
+            break;
+
+        case State::Second:
+            m_lineRead.second++;
+            break;
+
+        default:
+            break;
+    }
 }
 
 } // namespace sitl::cmds

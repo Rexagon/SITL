@@ -12,6 +12,9 @@ namespace sitl::cmds
 std::string List::encode() const
 {
     std::string result = "LIST\n";
+
+    // У результатов этой команды нет точного конца, но есть точное начало.
+    // Исполняем команду дважды, для того чтобы узнать длину первого сообщения.
     return result + result;
 }
 

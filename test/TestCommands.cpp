@@ -26,19 +26,14 @@ TEST_CASE("LIST command")
 
     SECTION("Decoding")
     {
-        const char* reply =
-            "LIST:                                             \n"  // #0
-            "IDEN                                              \n"
-            "MWR   ADDRESS-24       DATA-WORD-08               \n"
-            "MWR   ADDRESS-24       DATA-WORD-32               \n"
-            "MWR   ADDRESS-32       DATA-WORD-32               \n"
-            "INTRQ IRQ[14:0]        -D08                       \n"  // #5
-            "LIST:                                             \n"  // #0
-            "IDEN                                              \n"
-            "MWR   ADDRESS-24       DATA-WORD-08               \n"
-            "MWR   ADDRESS-24       DATA-WORD-32               \n"
-            "MWR   ADDRESS-32       DATA-WORD-32               \n"
-            "INTRQ IRQ[14:0]        -D08                       \n";  // #5
+        const std::string result = "LIST:                                             \n"  // #0
+                                   "IDEN                                              \n"
+                                   "MWR   ADDRESS-24       DATA-WORD-08               \n"
+                                   "MWR   ADDRESS-24       DATA-WORD-32               \n"
+                                   "MWR   ADDRESS-32       DATA-WORD-32               \n"
+                                   "INTRQ IRQ[14:0]        -D08                       \n"; // #5
+
+        const auto reply = result + result;
 
         sitl::cmds::Status status{};
 
@@ -48,16 +43,16 @@ TEST_CASE("LIST command")
         for (const auto& line : lines)
         {
             status = listCmd.decodeLine(line);
+            ++currentLine;
+
             if (status == sitl::cmds::FINISHED_DONE)
             {
                 break;
             }
-
-            ++currentLine;
         }
 
         REQUIRE(status == sitl::cmds::FINISHED_DONE);
-        REQUIRE(currentLine == 9);
+        REQUIRE(currentLine == 6 * 2);
     }
 }
 
@@ -73,26 +68,12 @@ TEST_CASE("IDEN command")
 
     SECTION("Decoding")
     {
-        const char* reply =
-            "IDEN: SITL-v.1.0                                  \n"  // #0
-            "SITL-assembler:                                   \n"
-            "UDP IO Client SW Ver.1.3                          \n"
-            "For communication with 1986BE1T MCU               \n"
-            "Via Ethernet IP network connection                \n"
-            "SITL-processor:                                   \n"
-            "UDP IO Client SW Ver.1.3                          \n"
-            "For communication with 1986BE1T MCU               \n"
-            "Via Ethernet IP network connection                \n"
-            "SITL-disassembler:                                \n"
-            "UDP IO Client SW Ver.1.3                          \n"
-            "For communication with 1986BE1T MCU               \n"
-            "Via Ethernet IP network connection                \n"
-            "(C) Institute Argon. 2014.                        \n"
-            "For OS Microsoft Windows version XP-7             \n"
-            "Written by Ivan Perdunov                          \n"  // #15
-            "IDEN: SITL-v.1.0                                  \n"  // #0 <- x2
-            "SITL-assembler:                                   \n";
-        //  ...
+        const std::string result = "IDEN: SITL-v.1.0                                  \n"  // #0
+                                   "SITL-assembler:                                   \n"
+                                   "UDP IO Client SW Ver.1.3                          \n"
+                                   "Written by Ivan Perdunov                          \n"; // #3
+
+        const auto reply = result + result;
 
         sitl::cmds::Status status{};
 
@@ -102,16 +83,16 @@ TEST_CASE("IDEN command")
         for (const auto& line : lines)
         {
             status = idenCmd.decodeLine(line);
+            ++currentLine;
+
             if (status == sitl::cmds::FINISHED_DONE)
             {
                 break;
             }
-
-            ++currentLine;
         }
 
         REQUIRE(status == sitl::cmds::FINISHED_DONE);
-        REQUIRE(currentLine == 16);
+        REQUIRE(currentLine == 4 * 2);
     }
 }
 

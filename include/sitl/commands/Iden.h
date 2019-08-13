@@ -13,6 +13,13 @@ namespace sitl::cmds
  */
 class SITL_API Iden
 {
+    enum State
+    {
+        None,
+        First,
+        Second
+    };
+
 public:
     /**
      * @brief       Кодирует команду.
@@ -37,7 +44,13 @@ public:
     std::string getResult() const;
 
 private:
+    void incrementState();
+    void incrementLine();
+
     std::string m_info{};
+
+    State m_state = State::None;
+    std::pair<size_t, size_t> m_lineRead = {0, 0};
 };
 
 } // namespace sitl::cmds
