@@ -15,19 +15,14 @@ namespace sitl::cmds
  */
 class SITL_API List
 {
-public:
-    /**
-     * @brief   Режим исполения команды.
-     */
-    enum Type
+    enum State
     {
-        FULL_INFO, ///< Команда выполняется 2 раза, получая всю необходимую информацию.
-        SINGLE_PING ///< Команда выполняется 1 раз, не обрабатывая полученный результат.
-                    ///< В таком режиме можно с некоторой периодичностью проверять
-                    ///< работоспособность устройства.
+        None,
+        First,
+        Second
     };
 
-
+public:
     /**
      * @brief   Информация о команде
      */
@@ -35,13 +30,6 @@ public:
     {
         // TODO: указать здесь возможные разрядности и т.д.
     };
-
-
-    /**
-     * @brief           Команда LIST в одном из 2х режимов.
-     * @param type      Режим исполнения команды.
-     */
-    explicit List(Type type = Type::FULL_INFO);
 
 
     /**
@@ -71,8 +59,13 @@ public:
     std::unordered_map<std::string, CommandInfo> getResult() const;
 
 private:
-    Type m_type;
+    void incrementState();
+    void incrementLine();
+
     std::unordered_map<std::string, CommandInfo> m_availableCommands{};
+
+    State m_state = State::None;
+    std::pair<size_t, size_t> m_lineRead = {0, 0};
 };
 
 } // namespace sitl::cmds

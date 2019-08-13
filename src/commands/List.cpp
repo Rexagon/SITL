@@ -9,62 +9,59 @@
 
 namespace sitl::cmds
 {
-List::List(const List::Type type)
-    : m_type(type)
-{
-}
-
-
 std::string List::encode() const
 {
     std::string result = "LIST\n";
-
-    if (m_type == Type::FULL_INFO)
-    {
-        // У результатов этой команды нет точного конца, но есть точное начало.
-        // Исполняем команду дважды, для того чтобы узнать конец первого сообщения.
-        return result + result;
-    }
-
-    return result;
+    return result + result;
 }
 
 
 Status List::decodeLine(const std::string &line)
 {
-    // Если строка начинается с 'LIST:' (такой строкой будет только первая в
-    // результате выполнения команды)
+    // Если строка начинается с 'LIST:'
     if (line.find("LIST:") == 0)
     {
-        // Если команда была создана просто как пинг то первой строки достаточно.
-        // Если мы уже заполнили какие-то данные, и получили строку 'LIST:', то
-        // это означает начало результатов выполнения второй команды. Она нам не
-        // нужна, но теперь точно известен конец первой команды
-        if (m_type == SINGLE_PING || !m_availableCommands.empty())
-        {
-            return Status::FINISHED_DONE;
-        }
-        else
-        {
-            // Была только первая строка в результате, значит обрабатываем дальше
-            return Status::IN_PROCESS;
-        }
+        incrementState();
+        return Status::IN_PROCESS;
     }
 
-    // Получаем информацию о команде из строки
-    const auto keyword = extractKeyword(line);
+    incrementLine();
 
-    if (keyword == "INTRQ")
+    switch (m_state)
     {
-        // TODO: Обработать наличие и количество входов аппаратных прерываний
-    }
-    else
-    {
-        m_availableCommands.emplace(std::string{keyword}, CommandInfo{});
-        // TODO: Обработать возможные параметры команд
+        // Сюда мы не должны попадать при нормальных входных данных
+        case State::None:
+            throw std::runtime_error{"Невозможно декодировать результат"};
+
+        // В первом состоянии происходит получение информации о командах
+        case State::First:
+        {
+            // Получаем информацию о команде из строки
+            const auto keyword = extractKeyword(line);
+
+            if (keyword == "INTRQ")
+            {
+                // TODO: Обработать наличие и количество входов аппаратных прерываний
+            }
+            else if (!keyword.empty())
+            {
+                m_availableCommands.emplace(std::string{keyword}, CommandInfo{});
+                // TODO: Обработать возможные параметры команд
+            }
+
+            break;
+        }
+
+        // Во втором состоянии ждём столько же строк, сколько и в первом
+        case State::Second:
+            if (m_lineRead.second == m_lineRead.first)
+            {
+                return Status::FINISHED_DONE;
+            }
+
+            break;
     }
 
-    // Обработка ещё не закончена
     return Status::IN_PROCESS;
 }
 
@@ -72,6 +69,42 @@ Status List::decodeLine(const std::string &line)
 std::unordered_map<std::string, List::CommandInfo> List::getResult() const
 {
     return m_availableCommands;
+}
+
+
+void List::incrementState()
+{
+    switch (m_state)
+    {
+        case State::None:
+            m_state = State::First;
+            break;
+
+        case State::First:
+            m_state = State::Second;
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void List::incrementLine()
+{
+    switch (m_state)
+    {
+        case State::First:
+            m_lineRead.first++;
+            break;
+
+        case State::Second:
+            m_lineRead.second++;
+            break;
+
+        default:
+            break;
+    }
 }
 
 } // namespace sitl::cmds

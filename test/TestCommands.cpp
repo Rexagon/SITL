@@ -30,15 +30,15 @@ TEST_CASE("LIST command")
             "LIST:                                             \n"  // #0
             "IDEN                                              \n"
             "MWR   ADDRESS-24       DATA-WORD-08               \n"
-            "MWR   ADDRESS-24       DATA-WORD-16               \n"
             "MWR   ADDRESS-24       DATA-WORD-32               \n"
-            "MWR   ADDRESS-32       DATA-WORD-08               \n"
-            "MWR   ADDRESS-32       DATA-WORD-16               \n"
             "MWR   ADDRESS-32       DATA-WORD-32               \n"
-            "INTRQ IRQ[14:0]        -D08                       \n"  // #8
-            "LIST:                                             \n"  // #0 <- x2;
-            "IDEN                                              \n";
-        //  ...
+            "INTRQ IRQ[14:0]        -D08                       \n"  // #5
+            "LIST:                                             \n"  // #0
+            "IDEN                                              \n"
+            "MWR   ADDRESS-24       DATA-WORD-08               \n"
+            "MWR   ADDRESS-24       DATA-WORD-32               \n"
+            "MWR   ADDRESS-32       DATA-WORD-32               \n"
+            "INTRQ IRQ[14:0]        -D08                       \n";  // #5
 
         sitl::cmds::Status status{};
 
