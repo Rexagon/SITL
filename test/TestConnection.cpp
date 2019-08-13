@@ -34,13 +34,16 @@ TEST_CASE("Transaction test")
 
         Connection connection{DEFAULT_COM, DEFAULT_BAUD_RATE};
 
-        //const auto listResult = connection.execute<cmds::List>();
+        const auto listResult = connection.execute<cmds::List>();
+        CAPTURE(listResult);
 
-        //const auto info = connection.execute<cmds::Iden>();
+        const auto info = connection.execute<cmds::Iden>();
+        CAPTURE(info);
 
         connection.execute<cmds::Mwr<uint16_t, uint8_t>>(0x0018, 0xFF);
 
         const auto data = connection.execute<cmds::Mrd<uint16_t, uint8_t>>(0x0018);
+        CAPTURE(data);
 
         REQUIRE(data == 0xFF);
     }());

@@ -10,8 +10,12 @@
 namespace sitl::cmds
 {
 /**
- * @brief   Команда для полечения списка команд, поддерживаемых текущей
+ * @brief   Команда для получения списка команд, поддерживаемых текущей
  *          конфигурацией оборудования.
+ *
+ * @code{.cpp}
+ * connection.execute<List>() -> std::unordered_map<std::string, CommandInfo>
+ * @endcode
  */
 class SITL_API List
 {

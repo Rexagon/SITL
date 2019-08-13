@@ -10,6 +10,8 @@ namespace sitl::cmds
  * @brief   Команда для получения сведения о поддерживаемой версии языка SITL
  *          (версии спецификации SITL) и данные о текущей конфигурации
  *          оборудования (SITL-ассемблере, SITL-процессоре, SITL-дизассемблере).
+ *
+ * connection.execute<Iden>() -> std::string
  */
 class SITL_API Iden
 {

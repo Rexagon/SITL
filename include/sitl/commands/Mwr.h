@@ -9,6 +9,8 @@ namespace sitl::cmds
 /**
  * @brief   Команда, выполняющая запись одиночного слова данных в адресном
  *          пространстве памяти.
+ *
+ * connection.execute<Mwr<TA, TD>>(TA address, TD data) -> void
  */
 template <typename TA, typename TD>
 class SITL_API Mwr

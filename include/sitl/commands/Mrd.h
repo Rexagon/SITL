@@ -9,6 +9,8 @@ namespace sitl::cmds
 /**
  * @brief   Команда, выполняющая чтение одиночного слова данных в адресном
  *          пространстве памяти.
+ *
+ * connection.execute<Mrd<TA, TD>>(TA address) -> TD
  */
 template <typename TA, typename TD>
 class SITL_API Mrd
