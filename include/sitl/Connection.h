@@ -1,6 +1,7 @@
 #ifndef LIBSITL_CONNECTION_H
 #define LIBSITL_CONNECTION_H
 
+#include <algorithm>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -9,6 +10,7 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/serial_port.hpp>
+#include <boost/asio/streambuf.hpp>
 
 #include <sitl/Command.h>
 #include <sitl/Config.h>
@@ -84,17 +86,18 @@ private:
     /**
      * @brief       Считывает одну строку (читает все данные из буффера, пока
      *              не встретит \n).
-     * @param line  Буффер, куда допишется считанная строка. Причём строка точно
-     *              не будет содержать символы \n и \r
-     * @return      Длина считанной строки
+     * @param line  Буффер, в который допишется считанная строка.
+     * @return      true, если требуется повторный вызов
      */
-    size_t serialPortRead(std::string &line);
+    bool serialPortRead(std::string &line);
 
     void log(const std::string &message);
 
 
     boost::asio::io_service m_service;
     std::unique_ptr<boost::asio::serial_port> m_serialPort;
+
+    boost::asio::streambuf m_responseBuffer;
 
     bool m_isLoggingEnabled;
 };
@@ -117,27 +120,31 @@ auto Connection::execute(Ts &&... args) -> auto
     bool isReading = true;
     while (isReading)
     {
-        // Считываем одну строку результата
-        buffer.clear();
-        serialPortRead(buffer);
-        log("Received:\t" + buffer);
-
-        // Обрабатываем строку
-        const auto status = command.decodeLine(buffer);
-
-        switch (status)
+        // Считываем результат
+        while (serialPortRead(buffer))
         {
-            case cmds::Status::IN_PROCESS:
-                break;
+            // Очищаем от лишних символов
+            buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
-            case cmds::Status::FINISHED_DONE:
-                isReading = false;
-                break;
+            log("Received:\t" + buffer);
 
-                // TODO: проверить другие коды
+            // Обрабатываем строку
+            const auto status = command.decodeLine(buffer);
 
-            default:
-                throw std::runtime_error{"Операция завершена с ошибкой"};
+            switch (status)
+            {
+                case cmds::Status::IN_PROCESS:
+                    break;
+
+                case cmds::Status::FINISHED_DONE:
+                    isReading = false;
+                    break;
+
+                    // TODO: проверить другие коды
+
+                default:
+                    throw std::runtime_error{"Операция завершена с ошибкой"};
+            }
         }
     }
 

@@ -42,7 +42,7 @@ TEST_CASE("LIST command")
 
         sitl::cmds::Status status{};
 
-        const auto lines = sitl::stuff::split(reply, '\n');
+        const auto lines = sitl::stuff::split(reply, "\n");
 
         size_t currentLine = 0;
         for (const auto& line : lines)
@@ -96,7 +96,7 @@ TEST_CASE("IDEN command")
 
         sitl::cmds::Status status{};
 
-        const auto lines = sitl::stuff::split(reply, '\n');
+        const auto lines = sitl::stuff::split(reply, "\n");
 
         size_t currentLine = 0;
         for (const auto& line : lines)

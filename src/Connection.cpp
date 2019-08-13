@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include <boost/asio/read_until.hpp>
-#include <boost/asio/streambuf.hpp>
 #include <boost/asio/write.hpp>
 
 using namespace boost;
@@ -18,6 +17,7 @@ namespace sitl
 Connection::Connection(const std::string &port, const unsigned int baudRate, bool loggingEnabled)
     : m_service{}
     , m_serialPort{nullptr}
+    , m_responseBuffer{}
     , m_isLoggingEnabled{loggingEnabled}
 {
     m_serialPort = std::make_unique<asio::serial_port>(m_service, port);
@@ -30,16 +30,19 @@ Connection::Connection(const std::string &port, const unsigned int baudRate, boo
 }
 
 
-size_t Connection::serialPortRead(std::string &line)
+bool Connection::serialPortRead(std::string &line)
 {
-    asio::streambuf response;
+    // После выполнения этой функции в response будет содержаться как минимум одна строка
+    const auto bytesTransferred = asio::read_until(*m_serialPort, m_responseBuffer, '\n');
 
-    asio::read_until(*m_serialPort, response, '\n');
+    // Записываем одну строку
+    line = std::string{static_cast<const char *>(m_responseBuffer.data().data()), bytesTransferred - 1};
 
-    const std::string resp{(std::istreambuf_iterator<char>(&response)), std::istreambuf_iterator<char>()};
-    line = resp;
+    // Убираем из буффера считанную строку
+    m_responseBuffer.consume(bytesTransferred);
 
-    return resp.length();
+    // true если требуется повторный вызов
+    return m_responseBuffer.size() > 0;
 }
 
 

@@ -9,30 +9,6 @@
 
 namespace sitl::stuff
 {
-std::vector<std::string> split(const std::string &string, const char delimiter)
-{
-    std::vector<std::string> result;
-
-    size_t currentPos = 0;
-
-    // Находим первый символ отличный от делителя
-    while ((currentPos = string.find_first_not_of(delimiter, currentPos)) != std::string::npos)
-    {
-        // Если получилось найти
-
-        // Находим делитель, начиная с позиции найденного ранее символа
-        const auto it = string.find_first_of(delimiter, currentPos);
-
-        // Добавляем в массив результатов слово между первым символом и делителем
-        result.emplace_back(string.substr(currentPos, it - currentPos));
-
-        // Сдвигаем позицию
-        currentPos = it;
-    }
-
-    return result;
-}
-
 uint64_t convertFromHex(const std::string_view hex)
 {
     uint64_t result = 0;
@@ -57,6 +33,31 @@ uint64_t convertFromHex(const std::string_view hex)
 
         // Добавляем это число на соответствующее место результата
         result |= (number & 0xfu) << n;
+    }
+
+    return result;
+}
+
+
+std::vector<std::string> split(const std::string &string, const std::string &delimiter)
+{
+    std::vector<std::string> result;
+
+    size_t currentPos = 0;
+
+    // Находим первый символ отличный от делителя
+    while ((currentPos = string.find_first_not_of(delimiter, currentPos)) != std::string::npos)
+    {
+        // Если получилось найти
+
+        // Находим делитель, начиная с позиции найденного ранее символа
+        const auto it = string.find_first_of(delimiter, currentPos);
+
+        // Добавляем в массив результатов слово между первым символом и делителем
+        result.emplace_back(string.substr(currentPos, it - currentPos));
+
+        // Сдвигаем позицию
+        currentPos = it;
     }
 
     return result;

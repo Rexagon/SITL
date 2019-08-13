@@ -78,7 +78,7 @@ SITL_API uint64_t convertFromHex(std::string_view hex);
  * @return          Массив из элементов исходной строки. Ни один элемент не
  *                  содержит делитель
  */
-SITL_API std::vector<std::string> split(const std::string &string, char delimiter);
+SITL_API std::vector<std::string> split(const std::string &string, const std::string &delimiter);
 
 } // namespace sitl::stuff
 

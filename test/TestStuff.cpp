@@ -18,7 +18,7 @@ TEST_CASE("Test converter")
 
 TEST_CASE("Test string split")
 {
-    const char delimiter = '\n';
+    const auto delimiter = "\n";
 
     std::string testString = "some\nlong\nstring\nwith\n\ndelimiters\n";
     const auto lines = sitl::stuff::split(testString, delimiter);
