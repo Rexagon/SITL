@@ -6,6 +6,7 @@
 #include <sitl/Stuff.h>
 
 #include <stdexcept>
+#include <unordered_map>
 
 namespace sitl::stuff
 {
@@ -58,6 +59,37 @@ std::vector<std::string> split(const std::string &string, const std::string &del
 
         // Сдвигаем позицию
         currentPos = it;
+    }
+
+    return result;
+}
+
+
+SITL_API std::string escaped(const std::string &string)
+{
+    static std::unordered_map<char, std::string> const escapes = {
+        {'\a', "\\a"}, //  7, ^G, alert (bell)
+        {'\b', "\\b"}, //  8, ^H, backspace
+        {'\t', "\\t"}, //  9, ^I, tab
+        {'\n', "\\n"}, // 10, ^J, newline / linefeed
+        {'\v', "\\v"}, // 11, ^K, vertical tab
+        {'\f', "\\f"}, // 12, ^L, formfeed
+        {'\r', "\\r"}, // 13, ^M, carriage return
+        {'\\', "\\\\"} // backslash
+    };
+
+    std::string result;
+    for (const auto &symbol : string)
+    {
+        auto const it = escapes.find(symbol);
+        if (it == escapes.end())
+        {
+            result += symbol;
+        }
+        else
+        {
+            result += it->second;
+        }
     }
 
     return result;

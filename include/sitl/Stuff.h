@@ -80,6 +80,26 @@ SITL_API uint64_t convertFromHex(std::string_view hex);
  */
 SITL_API std::vector<std::string> split(const std::string &string, const std::string &delimiter);
 
+
+/**
+ * @brief Экранирует экранированные символы. Можно использовать для вывода
+ * сырых данных.
+ *
+ * Пример:
+ * @code{.cpp}
+ * std::cout << escaped("Hello\n\rworld\n") << std::endl;
+ * @endcode
+ *
+ * Выведет:
+ * @code
+ * Hello\n\rworld\n
+ * @endcode
+ *
+ * @param string
+ * @return
+ */
+SITL_API std::string escaped(const std::string &string);
+
 } // namespace sitl::stuff
 
 #endif // LIBSITL_STUFF_H

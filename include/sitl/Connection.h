@@ -87,9 +87,9 @@ private:
      * @brief       Считывает одну строку (читает все данные из буффера, пока
      *              не встретит \n).
      * @param line  Буффер, в который допишется считанная строка.
-     * @return      true, если требуется повторный вызов
+     * @param[out] hasRemaining     true, если требуется повторный вызов
      */
-    bool serialPortRead(std::string &line);
+    void serialPortRead(std::string &line, bool &hasRemaining);
 
     void log(const std::string &message);
 
@@ -114,7 +114,7 @@ auto Connection::execute(Ts &&... args) -> auto
     // Конвертируем и отправляем всю команду
     auto buffer = command.encode();
     serialPortWrite(buffer);
-    log("Sent:\t\t" + buffer);
+    log("Sent:\t\t" + stuff::escaped(buffer));
 
     // Начинаем считывание
     bool isReading = true;
@@ -129,7 +129,7 @@ auto Connection::execute(Ts &&... args) -> auto
             // Очищаем от лишних символов
             buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
-            log("Received:\t" + buffer);
+            log("Received:\t" + stuff::escaped(buffer));
 
             // Обрабатываем строку
             const auto status = command.decodeLine(buffer);
