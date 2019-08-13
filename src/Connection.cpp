@@ -30,7 +30,7 @@ Connection::Connection(const std::string &port, const unsigned int baudRate, boo
 }
 
 
-bool Connection::serialPortRead(std::string &line)
+void Connection::serialPortRead(std::string &line, bool &hasRemaining)
 {
     // После выполнения этой функции в response будет содержаться как минимум одна строка
     const auto bytesTransferred = asio::read_until(*m_serialPort, m_responseBuffer, '\n');
@@ -42,7 +42,7 @@ bool Connection::serialPortRead(std::string &line)
     m_responseBuffer.consume(bytesTransferred);
 
     // true если требуется повторный вызов
-    return m_responseBuffer.size() > 0;
+    hasRemaining = m_responseBuffer.size() > 0;
 }
 
 

@@ -121,8 +121,11 @@ auto Connection::execute(Ts &&... args) -> auto
     while (isReading)
     {
         // Считываем результат
-        while (serialPortRead(buffer))
+        while (true)
         {
+            bool hasRemaining = false;
+            serialPortRead(buffer, hasRemaining);
+
             // Очищаем от лишних символов
             buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
@@ -144,6 +147,11 @@ auto Connection::execute(Ts &&... args) -> auto
 
                 default:
                     throw std::runtime_error{"Операция завершена с ошибкой"};
+            }
+
+            if (!hasRemaining)
+            {
+                break;
             }
         }
     }
