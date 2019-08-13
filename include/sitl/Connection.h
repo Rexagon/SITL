@@ -2,9 +2,7 @@
 #define LIBSITL_CONNECTION_H
 
 #include <algorithm>
-#include <chrono>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -29,8 +27,7 @@ public:
      * @param baudRate  Скорость передачи
      * @param loggingEnabled Выводить ли все передаваемые и получаемые команды
      */
-    explicit Connection(const std::string &port, unsigned int baudRate, bool logginEnabled = false);
-
+    explicit Connection(const std::string &port, unsigned int baudRate, bool loggingEnabled = false);
 
     /**
      * @brief           Выполняет указанную команду.
@@ -77,11 +74,21 @@ public:
 
 private:
     /**
-     * @brief       Отправляет на устройство полностью всю строку.
-     * @param data  Строка данных
+     * @brief           Отправляет на устройство полностью всю строку. Метод блокирует
+     * вызывающий поток до тех пор пока сообщение не будет отправлено.
+     *
+     * @param data      Строка данных
      */
     void serialPortWrite(const std::string &data);
 
+    /**
+     * @brief           Отправляет на устройство полностью всю строку. При превышении
+     * времени ожидания будет брошено исключение.
+     *
+     * @param data      Строка данных
+     * @param timeout   Время ожидания, [с]
+     */
+    void serialPortWrite(const std::string &data, size_t timeout);
 
     /**
      * @brief       Считывает одну строку (читает все данные из буффера, пока
@@ -91,13 +98,22 @@ private:
      */
     void serialPortRead(std::string &line, bool &hasRemaining);
 
+    /**
+     * @brief           Считывает одну строку (читает все данные из буффера, пока
+     *                  не встретит \n).
+     * @param line      Буффер, в который допишется считанная строка.
+     * @param[out] hasRemaining     true, если требуется повторный вызов
+     * @param timeout   Время ожидания, [с]
+     */
+    void serialPortRead(std::string &line, bool &hasRemaining, size_t timeout);
+
     void log(const std::string &message);
 
 
-    boost::asio::io_service m_service;
-    std::unique_ptr<boost::asio::serial_port> m_serialPort;
+    boost::asio::io_service m_service{};
+    std::unique_ptr<boost::asio::serial_port> m_serialPort{};
 
-    boost::asio::streambuf m_responseBuffer;
+    boost::asio::streambuf m_responseBuffer{};
 
     bool m_isLoggingEnabled;
 };
@@ -113,7 +129,7 @@ auto Connection::execute(Ts &&... args) -> auto
 
     // Конвертируем и отправляем всю команду
     auto buffer = command.encode();
-    serialPortWrite(buffer);
+    serialPortWrite(buffer, 1 /* сек */);
     log("Sent:\t\t" + stuff::escaped(buffer));
 
     // Начинаем считывание
@@ -124,7 +140,7 @@ auto Connection::execute(Ts &&... args) -> auto
         while (true)
         {
             bool hasRemaining = false;
-            serialPortRead(buffer, hasRemaining);
+            serialPortRead(buffer, hasRemaining, 1 /* сек */);
 
             // Очищаем от лишних символов
             buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
