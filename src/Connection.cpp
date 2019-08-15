@@ -28,10 +28,65 @@ Connection::Connection(const std::string &port, const unsigned int baudRate, boo
 }
 
 
-void Connection::serialPortRead(std::string &line, bool &hasRemaining)
+void Connection::setResponseTimeout(const size_t timeout_s)
 {
-    // После выполнения этой функции в response будет содержаться как минимум одна строка
-    const auto bytesTransferred = asio::read_until(*m_serialPort, m_responseBuffer, '\n');
+    m_responseTimeout_s = timeout_s;
+}
+
+
+size_t Connection::getResponseTimeout() const
+{
+    return m_responseTimeout_s;
+}
+
+
+void Connection::serialPortRead(std::string &line, bool &hasRemaining, size_t timeout)
+{
+    // Настраиваем таймер
+
+    asio::deadline_timer timer{m_service};
+    std::optional<system::error_code> timerResult;
+
+    const auto onTimeout = [this, &timerResult](const system::error_code &error) {
+        if (error != asio::error::operation_aborted)
+        {
+            log("Timeout reached");
+            timerResult = error;
+            m_serialPort->cancel();
+        }
+    };
+
+    timer.expires_from_now(posix_time::seconds(timeout));
+    timer.async_wait(onTimeout);
+
+    // Настраиваем запись
+    std::optional<std::pair<system::error_code, size_t>> readResult;
+
+    const auto onComplete = [this, &timer, &readResult](const system::error_code &error, size_t bytesTransferred) {
+        log("Operation complete");
+
+        readResult = std::make_pair(error, bytesTransferred);
+        timer.cancel();
+    };
+
+    asio::async_read_until(*m_serialPort, m_responseBuffer, '\n', onComplete);
+
+    // Запускаем цикл обработки пока не завершатся операции
+    m_service.restart();
+    m_service.run();
+
+    // Обрабатываем результаты
+    if (timerResult)
+    {
+        throw std::runtime_error{"Превышено время ожидания при записи"};
+    }
+
+    const auto &[error, bytesTransferred] = *readResult;
+
+    if (error)
+    {
+        throw std::runtime_error(readResult->first.message());
+    }
 
     // Записываем одну строку
     line = std::string{static_cast<const char *>(m_responseBuffer.data().data()), bytesTransferred - 1};
@@ -44,51 +99,6 @@ void Connection::serialPortRead(std::string &line, bool &hasRemaining)
 }
 
 
-void Connection::serialPortRead(std::string &line, bool &hasRemaining, size_t timeout)
-{
-    // Настраиваем таймер для таймаута
-    std::optional<system::error_code> timerResult;
-    asio::deadline_timer timer{m_service};
-    timer.expires_from_now(posix_time::seconds(timeout));
-    timer.async_wait([&timerResult](const system::error_code &error) { timerResult = error; });
-
-    // Настраиваем запись
-    std::optional<std::pair<system::error_code, size_t>> readResult;
-    asio::async_read_until(*m_serialPort, m_responseBuffer, '\n',
-                           [&readResult](const system::error_code &error, size_t bytesTransferred) {
-                               readResult = std::make_pair(error, bytesTransferred);
-                           });
-
-    // Запускаем операцию
-    m_service.restart();
-    while (m_service.run_one())
-    {
-        if (readResult)
-        {
-            const auto &[error, bytesTransferred] = *readResult;
-
-            if (error)
-            {
-                throw std::runtime_error(readResult->first.message());
-            }
-
-            // Записываем одну строку
-            line = std::string{static_cast<const char *>(m_responseBuffer.data().data()), bytesTransferred - 1};
-
-            // Убираем из буффера считанную строку
-            m_responseBuffer.consume(bytesTransferred);
-
-            // true если требуется повторный вызов
-            hasRemaining = m_responseBuffer.size() > 0;
-        }
-        else if (timerResult)
-        {
-            throw std::runtime_error{"Превышено время ожидания при записи"};
-        }
-    }
-}
-
-
 void Connection::serialPortWrite(const std::string &data)
 {
     system::error_code error;
@@ -97,35 +107,6 @@ void Connection::serialPortWrite(const std::string &data)
     if (error)
     {
         throw std::runtime_error(error.message());
-    }
-}
-
-
-void Connection::serialPortWrite(const std::string &data, const size_t timeout)
-{
-    // Настраиваем таймер для таймаута
-    std::optional<system::error_code> timerResult;
-    asio::deadline_timer timer{m_service};
-    timer.expires_from_now(posix_time::seconds(timeout));
-    timer.async_wait([&timerResult](const system::error_code &error) { timerResult = error; });
-
-    // Настраиваем запись
-    std::optional<system::error_code> writeResult;
-    asio::async_write(*m_serialPort, asio::buffer(data.c_str(), data.size()),
-                      [&writeResult](const system::error_code &error, size_t) { writeResult = error; });
-
-    // Запускаем операцию
-    m_service.restart();
-    while (m_service.run_one())
-    {
-        if (writeResult && *writeResult)
-        {
-            throw std::runtime_error(writeResult->message());
-        }
-        else if (timerResult)
-        {
-            throw std::runtime_error{"Превышено время ожидания при записи"};
-        }
     }
 }
 

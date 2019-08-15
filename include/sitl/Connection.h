@@ -72,6 +72,17 @@ public:
     template <typename T, typename... Ts>
     auto execute(Ts &&... args) -> auto;
 
+    /*
+     * @brief           Устанавливает максимальное время ожидания ответа
+     * @param timeout_s Время, [сек]
+     */
+    void setResponseTimeout(size_t timeout_s);
+
+    /**
+     * @return          Текущее максимальное время ожидания ответа
+     */
+    size_t getResponseTimeout() const;
+
 private:
     /**
      * @brief           Отправляет на устройство полностью всю строку. Метод блокирует
@@ -80,23 +91,6 @@ private:
      * @param data      Строка данных
      */
     void serialPortWrite(const std::string &data);
-
-    /**
-     * @brief           Отправляет на устройство полностью всю строку. При превышении
-     * времени ожидания будет брошено исключение.
-     *
-     * @param data      Строка данных
-     * @param timeout   Время ожидания, [с]
-     */
-    void serialPortWrite(const std::string &data, size_t timeout);
-
-    /**
-     * @brief       Считывает одну строку (читает все данные из буффера, пока
-     *              не встретит \n).
-     * @param line  Буффер, в который допишется считанная строка.
-     * @param[out] hasRemaining     true, если требуется повторный вызов
-     */
-    void serialPortRead(std::string &line, bool &hasRemaining);
 
     /**
      * @brief           Считывает одну строку (читает все данные из буффера, пока
@@ -114,8 +108,9 @@ private:
     std::unique_ptr<boost::asio::serial_port> m_serialPort{};
 
     boost::asio::streambuf m_responseBuffer{};
+    size_t m_responseTimeout_s = 2;
 
-    bool m_isLoggingEnabled;
+    bool m_isLoggingEnabled = false;
 };
 
 
@@ -129,7 +124,7 @@ auto Connection::execute(Ts &&... args) -> auto
 
     // Конвертируем и отправляем всю команду
     auto buffer = command.encode();
-    serialPortWrite(buffer, 1 /* сек */);
+    serialPortWrite(buffer);
     log("Sent:\t\t" + stuff::escaped(buffer));
 
     // Начинаем считывание
@@ -140,7 +135,7 @@ auto Connection::execute(Ts &&... args) -> auto
         while (true)
         {
             bool hasRemaining = false;
-            serialPortRead(buffer, hasRemaining, 1 /* сек */);
+            serialPortRead(buffer, hasRemaining, m_responseTimeout_s);
 
             // Очищаем от лишних символов
             buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
