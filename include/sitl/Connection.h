@@ -138,7 +138,7 @@ auto Connection::execute(Ts &&... args) -> auto
             serialPortRead(buffer, hasRemaining, m_responseTimeout_s);
 
             // Очищаем от лишних символов
-            buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
+            //buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
             log("Received:\t" + stuff::escaped(buffer));
 

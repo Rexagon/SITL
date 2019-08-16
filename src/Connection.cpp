@@ -50,7 +50,7 @@ void Connection::serialPortRead(std::string &line, bool &hasRemaining, size_t ti
     const auto onTimeout = [this, &timerResult](const system::error_code &error) {
         if (error != asio::error::operation_aborted)
         {
-            log("Timeout reached");
+            log("Reading timeout reached");
             timerResult = error;
             m_serialPort->cancel();
         }
@@ -63,8 +63,6 @@ void Connection::serialPortRead(std::string &line, bool &hasRemaining, size_t ti
     std::optional<std::pair<system::error_code, size_t>> readResult;
 
     const auto onComplete = [this, &timer, &readResult](const system::error_code &error, size_t bytesTransferred) {
-        log("Operation complete");
-
         readResult = std::make_pair(error, bytesTransferred);
         timer.cancel();
     };
@@ -89,7 +87,7 @@ void Connection::serialPortRead(std::string &line, bool &hasRemaining, size_t ti
     }
 
     // Записываем одну строку
-    line = std::string{static_cast<const char *>(m_responseBuffer.data().data()), bytesTransferred - 1};
+    line = std::string{static_cast<const char *>(m_responseBuffer.data().data()), bytesTransferred};
 
     // Убираем из буффера считанную строку
     m_responseBuffer.consume(bytesTransferred);
