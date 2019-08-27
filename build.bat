@@ -1,8 +1,10 @@
 @echo off
 
-PUSHD %CD%
+pushd %CD%
 call prepare.bat
-POPD
+popd
+
+pushd %CD%
 
 set withoutBindings=0
 for %%x in (%*) do (
@@ -19,3 +21,5 @@ cd sitl
 
 cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=../../dist -DCMAKE_BUILD_TYPE=Release %additionalParameters% ../../
 cmake --build . --target install
+
+popd
