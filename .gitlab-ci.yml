@@ -1,12 +1,7 @@
 stages:
   - build
 
-.submodule_base: &submodule
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-
 build_develop:
-  <<: *submodule
   stage: build
   only:
     - develop

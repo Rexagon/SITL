@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(sitl)
 
 option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_PYSITL "Build python bindings" ON)
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SYSTEM_BIT_POSTFIX x64)
@@ -22,10 +23,15 @@ set(Boost_USE_RELEASE_LIBS  ON)     # используем только рели
 
 set(Boost_ARCHITECTURE      "-x32")
 
-find_package(Boost REQUIRED COMPONENTS python27 system)
+find_package(Boost REQUIRED COMPONENTS system)
 
-# python library
-find_package(Python2 COMPONENTS Development)
+# components and libraries needed for python bindings
+if (BUILD_PYSITL)
+    find_package(Boost REQUIRED COMPONENTS python27)
+
+    # python library
+    find_package(Python2 COMPONENTS Development)
+endif()
 
 # sitl library
 add_subdirectory(src)
