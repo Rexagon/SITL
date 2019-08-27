@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(sitl)
 
+option(BUILD_TESTS "Build tests" OFF)
+
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SYSTEM_BIT_POSTFIX x64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -25,15 +27,17 @@ find_package(Boost REQUIRED COMPONENTS python27 system)
 # python library
 find_package(Python2 COMPONENTS Development)
 
-# catch2 library
-if (NOT DEFINED ENV{Catch2_DIR})
-    set(ENV{Catch2_DIR} ${EXTLIBS_DIR}/Catch2/dist/lib/cmake/Catch2)
-endif()
-
-find_package(Catch2 REQUIRED)
-
 # sitl library
 add_subdirectory(src)
 
 # tests
-add_subdirectory(test)
+if (BUILD_TESTS)
+    # catch2 library
+    if (NOT DEFINED ENV{Catch2_DIR})
+        set(ENV{Catch2_DIR} ${EXTLIBS_DIR}/Catch2/dist/lib/cmake/Catch2)
+    endif()
+
+    find_package(Catch2 REQUIRED)
+
+    add_subdirectory(test)
+endif()
