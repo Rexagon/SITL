@@ -1,7 +1,16 @@
+.environment: &environment
+  image: rexagon/cmake-gcc_cpp-boost-python
+  tags:
+    - kpa
+    - docker
+    - debian
+
+
 stages:
   - build
 
 build_develop:
+  <<: *environment
   stage: build
   only:
     - develop

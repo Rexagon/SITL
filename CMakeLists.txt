@@ -30,7 +30,7 @@ if (BUILD_PYSITL)
     find_package(Boost REQUIRED COMPONENTS python27)
 
     # python library
-    find_package(Python2 COMPONENTS Development)
+    find_package(Python2 REQUIRED COMPONENTS Development)
 endif()
 
 # sitl library
