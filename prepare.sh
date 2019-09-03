@@ -11,9 +11,6 @@ do
 done
 
 if [ $withTests -eq 1 ]; then
-    git submodule init
-    git submodule update
-
     mkdir -p "$cwd"/cmakefiles_gcc/3rdparty/Catch2
     cd "$cwd"/cmakefiles_gcc/3rdparty/Catch2 || exit
 
