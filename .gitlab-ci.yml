@@ -1,5 +1,5 @@
 .environment: &environment
-  image: rexagon/cmake-gcc_cpp-boost-python
+  image: $DOCKERHUB/kpa/cmake-gcc_cpp-boost-python
   tags:
     - kpa
     - docker
