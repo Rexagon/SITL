@@ -1,0 +1,3 @@
+[submodule "3rdparty/Catch2"]
+	path = 3rdparty/Catch2
+	url = ../../i.kalinin/catch2.git

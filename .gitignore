@@ -1,0 +1,10 @@
+.vs
+.vscode
+.idea
+
+build
+dist
+CMakeFiles
+cmakefiles_*
+
+cmake-build-*

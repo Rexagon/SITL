@@ -1,0 +1,21 @@
+.environment: &environment
+  image: $DOCKERHUB/kpa/cmake-gcc_cpp-boost-python
+  tags:
+    - kpa
+    - docker
+    - debian
+
+
+stages:
+  - build
+
+build_develop:
+  <<: *environment
+  stage: build
+  only:
+    - develop
+  script:
+    - sh build.sh
+  artifacts:
+    paths:
+      - dist
